@@ -1,8 +1,10 @@
 """Setup the sys.path for Western Post.
 
-This adds all the directories listed within KS_PYTHON_SITES (and then the
-key_tools that this is imported from) in a similar manner as site-packages via
-the site module. We have reimplemented that functionality for two reasons:
+This adds all the directories listed within KS_PYTHON_SITES, and the directory
+from which this was imported from, in a similar manner as site-packages via
+the site module.
+
+We have reimplemented that functionality for two reasons:
 
 1) Our NFS was throwing some wierd errors with site.addsitedir.
 2) We added __site__.pth files to packages to allow them to describe themselves
@@ -14,23 +16,25 @@ import os
 import sys
 
 
-# Determine the key_tools base relative to this module. 
-key_tools = os.path.abspath(os.path.join(__file__,
+# Where do we want to start inserting directories into sys.path? Just before
+# this module, of course.
+
+# Determine where we were loaded from.
+_our_sys_path = os.path.abspath(os.path.join(__file__,
     os.path.pardir,
     os.path.pardir,
 ))
 
-
-# Where do we want to start inserting directories into sys.path?
+# Determine where we are in the sys.path.
 try:
-    insert_at = sys.path.index(key_tools)
+    insert_at = sys.path.index(_our_sys_path)
 except ValueError:
-    print 'Could not find key_tools in sys.path!'
+    print 'Could not find our entry in sys.path!'
     print 'sys.path = ['
     for x in sys.path:
         print '\t' + repr(x)
     print ']'
-    print 'key_tools = %r' % key_tools
+    print '_our_sys_path = %r' % _our_sys_path
 
 
 def add_to_sys_path(x):
@@ -87,11 +91,9 @@ def add_site_dir(dir_name):
             process_pth(os.path.join(dir_name, file_name), '__site__.pth')
 
 
-
-
-sites = [x.strip() for x in os.environ.get('KS_PYTHON_SITES', '').split(':') if x.strip()]
-sites.append(key_tools)
-
+# Setup the pseudo site-packages.
+sites = [x.strip() for x in os.environ.get('KS_PYTHON_SITES', '').split(':') if x]
+sites.append(_our_sys_path)
 for site in sites:
     add_site_dir(site)
 
