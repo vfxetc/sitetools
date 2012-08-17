@@ -68,7 +68,11 @@ def process_pth(base, file_name):
 
 def add_site_dir(dir_name):
     
-    # Add dir to sys.path (if not already there).
+    # Don't so anything if the folder doesn't exist.
+    if not os.path.exists(dir_name):
+        return
+        
+    # Add dir to sys.path.
     add_to_sys_path(dir_name)
 
     # Process *.pth files in a manner similar to site.addsitedir(...).
