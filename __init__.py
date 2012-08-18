@@ -1,14 +1,14 @@
-"""Setup the sys.path for Western Post.
+"""This package is responsible for setting up :data:`python:sys.path` for Western X.
 
-This adds all the directories listed within KS_PYTHON_SITES, and the directory
+This adds all the directories listed within :envvar:`KS_PYTHON_SITES`, and the directory
 from which this was imported from, in a similar manner as site-packages via
-the site module.
+:func:`python:site.addsitedir`.
 
 We have reimplemented that functionality for two reasons:
 
-1) Our NFS was throwing some wierd errors with site.addsitedir.
-2) We added __site__.pth files to packages to allow them to describe themselves
-   and keep their *.pth file in their own repository.
+1. Our NFS was throwing some wierd errors with site.addsitedir.
+2. We added ``__site__.pth`` files to packages to allow them to describe themselves
+   and keep their ``.pth`` file in their own repository.
 
 """
 
@@ -37,11 +37,11 @@ except ValueError:
     print '_our_sys_path = %r' % _our_sys_path
 
 
-def add_to_sys_path(x):
-    """Add a directory to sys.path if it is not already there.
+def _add_to_sys_path(x):
+    """Add a directory to :data:`python:sys.path` if it is not already there.
     
     The directory is added BEFORE the one which imported this file, so that
-    KS_PYTHON_SITES will override anything that is already in sys.path.
+    :envvar:`KS_PYTHON_SITES` will override anything that is already in :data:`python:sys.path`.
     
     """
     
@@ -55,8 +55,8 @@ def add_to_sys_path(x):
         insert_at += 1
 
 
-def process_pth(base, file_name):
-    """Process a *.pth file similar to site.addpackage(...)."""
+def _process_pth(base, file_name):
+    """Process a ``.pth`` file similar to site.addpackage(...)."""
     with open(os.path.join(base, file_name)) as fh:
         for line in fh:
             line = line.strip()
@@ -67,17 +67,26 @@ def process_pth(base, file_name):
                 continue
             dir_name = os.path.abspath(os.path.join(base, line))
             if os.path.exists(dir_name):
-                add_to_sys_path(dir_name)
+                _add_to_sys_path(dir_name)
 
 
 def add_site_dir(dir_name):
+    """Add a pseudo site-packages directory to :data:`python:sys.path`.
+    
+    :param str dir_name: The directory to add.
+    
+    Looks for ``.pth`` files at the top-level and ``__site__.pth`` files within
+    top-level directories.
+    
+    
+    """
     
     # Don't so anything if the folder doesn't exist.
     if not os.path.exists(dir_name):
         return
         
     # Add dir to sys.path.
-    add_to_sys_path(dir_name)
+    _add_to_sys_path(dir_name)
 
     # Process *.pth files in a manner similar to site.addsitedir(...).
     for file_name in os.listdir(dir_name):
@@ -88,11 +97,11 @@ def add_site_dir(dir_name):
     
         # *.pth files.
         if file_name.endswith('.pth'):
-            process_pth(dir_name, file_name)
+            _process_pth(dir_name, file_name)
     
         # __site__.pth files inside packages.
         if os.path.exists(os.path.join(dir_name, file_name, '__site__.pth')):
-            process_pth(os.path.join(dir_name, file_name), '__site__.pth')
+            _process_pth(os.path.join(dir_name, file_name), '__site__.pth')
 
 
 # Setup the pseudo site-packages.
