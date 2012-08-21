@@ -57,17 +57,16 @@ def _add_to_sys_path(x):
 
 def _process_pth(base, file_name):
     """Process a ``.pth`` file similar to site.addpackage(...)."""
-    with open(os.path.join(base, file_name)) as fh:
-        for line in fh:
-            line = line.strip()
-            if line.startswith('#'):
-                continue
-            if line.startswith('import'):
-                exec line
-                continue
-            dir_name = os.path.abspath(os.path.join(base, line))
-            if os.path.exists(dir_name):
-                _add_to_sys_path(dir_name)
+    for line in open(os.path.join(base, file_name)):
+        line = line.strip()
+        if line.startswith('#'):
+            continue
+        if line.startswith('import'):
+            exec line
+            continue
+        dir_name = os.path.abspath(os.path.join(base, line))
+        if os.path.exists(dir_name):
+            _add_to_sys_path(dir_name)
 
 
 def add_site_dir(dir_name):
