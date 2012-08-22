@@ -21,8 +21,10 @@ import sys
 # See: http://hg.python.org/cpython/rev/e12efebc3ba6/
 # TODO: MOVE THIS ELSEWHERE!
 # TODO: Make this Python2.6 specific.
-old_chflags = os.chflags
+old_chflags = getattr(os, "chflags", None)
 def patch_chflags(*args, **kwargs):
+    if not old_chflags:
+        return
     try:
         return old_chflags(*args, **kwargs)
     except OSError, why:
