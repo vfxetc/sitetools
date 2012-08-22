@@ -12,8 +12,27 @@ We have reimplemented that functionality for two reasons:
 
 """
 
+import errno
 import os
 import sys
+
+
+# Monkey-patch chflags for Python2.6
+# See: http://hg.python.org/cpython/rev/e12efebc3ba6/
+# TODO: MOVE THIS ELSEWHERE!
+# TODO: Make this Python2.6 specific.
+old_chflags = os.chflags
+def patch_chflags(*args, **kwargs):
+    try:
+        return old_chflags(*args, **kwargs)
+    except OSError, why:
+        if why.errno == 45:
+            return
+        for err in 'EOPNOTSUPP', 'ENOTSUP':
+            if hasattr(errno, err) and why.errno == getattr(errno, err):
+                return
+        raise
+os.chflags = patch_chflags
 
 
 # Where do we want to start inserting directories into sys.path? Just before
