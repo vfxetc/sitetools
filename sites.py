@@ -55,7 +55,7 @@ def add_site_dir(dir_name, before=None):
             _process_pth(paths, os.path.join(dir_name, file_name), '__site__.pth')
     
     # Add everything which exists to the path before the path we were asked to.
-    existing = set(sys.path[:insert_at] if insert_at is not None else sys.path)
+    existing = set(sys.path)
         
     for path in paths:
         path = os.path.abspath(path)
