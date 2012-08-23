@@ -1,14 +1,15 @@
-"""This package is responsible for setting up :data:`python:sys.path` for Western X.
+"""Setup :data:`python:sys.path` and apply monkey-patches for Western X.
 
-This adds all the directories listed within :envvar:`KS_PYTHON_SITES`, and the directory
+Add all directories listed within :envvar:`KS_PYTHON_SITES`, and the directory
 from which this was imported from, in a similar manner as site-packages via
-:func:`python:site.addsitedir`.
-
-We have reimplemented that functionality for two reasons:
+:func:`python:site.addsitedir`. We reimplemented that functionality because:
 
 1. Our NFS was throwing some wierd errors with site.addsitedir.
 2. We added ``__site__.pth`` files to packages to allow them to describe themselves
    and keep their ``.pth`` file in their own repository.
+
+Also monkey-patch os.chflags to not error on our NFS (by ignoring the error).
+This was fixed in Python2.7, but we don't have that luxury.
 
 .. warning:: Be extremely careful while modifying this package and test it very
     thoroughly, since being able to locate any other packages is dependant on it
@@ -16,122 +17,74 @@ We have reimplemented that functionality for two reasons:
     
 """
 
+
 import errno
 import os
 import sys
+import warnings
+
+# We need to be super careful in this module.
+try:
+    from .sites import add_site_dir
+except ImportError, why:
+    warnings.warn('Error while importing sitecustomize.sites: %r' % why)
+    def add_site_dir(*args, **kwargs):
+        pass
+try:
+    from .monkeypatch import patch
+except ImportError, why:
+    warnings.warn('Error while importing sitecustomize.monkeypatch: %r' % why)
+    def patch(*args, **kwargs):
+        return lambda *a, **kw: None
 
 
-# Monkey-patch chflags for Python2.6
-# See: http://hg.python.org/cpython/rev/e12efebc3ba6/
-# TODO: MOVE THIS ELSEWHERE!
-# TODO: Make this Python2.6 specific.
-old_chflags = getattr(os, "chflags", None)
-def patch_chflags(*args, **kwargs):
-    if not old_chflags:
-        return
-    try:
-        return old_chflags(*args, **kwargs)
-    except OSError, why:
-        if why.errno == 45:
-            return
-        for err in 'EOPNOTSUPP', 'ENOTSUP':
-            if hasattr(errno, err) and why.errno == getattr(errno, err):
-                return
-        raise
-os.chflags = patch_chflags
+__all__ = ['add_site_dir', 'patch']
 
 
 # Where do we want to start inserting directories into sys.path? Just before
-# this module, of course.
-
-# Determine where we were loaded from.
-_our_sys_path = os.path.abspath(os.path.join(__file__,
+# this module, of course. So determine where we were imported from.
+our_sys_path = os.path.abspath(os.path.join(__file__,
     os.path.pardir,
     os.path.pardir,
 ))
 
-# Determine where we are in the sys.path.
-try:
-    insert_at = sys.path.index(_our_sys_path)
-except ValueError:
-    print 'Could not find our entry in sys.path!'
-    print 'sys.path = ['
-    for x in sys.path:
-        print '\t' + repr(x)
-    print ']'
-    print '_our_sys_path = %r' % _our_sys_path
-
-
-def _add_to_sys_path(x):
-    """Add a directory to :data:`python:sys.path` if it is not already there.
-    
-    The directory is added BEFORE the one which imported this file, so that
-    :envvar:`KS_PYTHON_SITES` will override anything that is already in :data:`python:sys.path`.
-    
-    """
-    
-    global insert_at
-    
-    # TODO: Make sure I don't have to deal with case-insensitive filesystems.
-    x = os.path.abspath(x)
-    
-    if x not in sys.path:
-        sys.path.insert(insert_at, x)
-        insert_at += 1
-
-
-def _process_pth(base, file_name):
-    """Process a ``.pth`` file similar to site.addpackage(...)."""
-    for line in open(os.path.join(base, file_name)):
-        line = line.strip()
-        if line.startswith('#'):
-            continue
-        if line.startswith('import'):
-            exec line
-            continue
-        dir_name = os.path.abspath(os.path.join(base, line))
-        if os.path.exists(dir_name):
-            _add_to_sys_path(dir_name)
-
-
-def add_site_dir(dir_name):
-    """Add a pseudo site-packages directory to :data:`python:sys.path`.
-    
-    :param str dir_name: The directory to add.
-    
-    Looks for ``.pth`` files at the top-level and ``__site__.pth`` files within
-    top-level directories.
-    
-    
-    """
-    
-    # Don't so anything if the folder doesn't exist.
-    if not os.path.exists(dir_name):
-        return
-        
-    # Add dir to sys.path.
-    _add_to_sys_path(dir_name)
-
-    # Process *.pth files in a manner similar to site.addsitedir(...).
-    for file_name in os.listdir(dir_name):
-    
-        # Skip dotfiles.
-        if file_name.startswith('.'):
-            continue
-    
-        # *.pth files.
-        if file_name.endswith('.pth'):
-            _process_pth(dir_name, file_name)
-    
-        # __site__.pth files inside packages.
-        if os.path.exists(os.path.join(dir_name, file_name, '__site__.pth')):
-            _process_pth(os.path.join(dir_name, file_name), '__site__.pth')
-
-
 # Setup the pseudo site-packages.
 sites = [x.strip() for x in os.environ.get('KS_PYTHON_SITES', '').split(':') if x]
-sites.append(_our_sys_path)
+sites.append(our_sys_path)
 for site in sites:
-    add_site_dir(site)
+    try:
+        add_site_dir(site, before=our_sys_path)
+    except Exception, why:
+        warnings.warn('Error while adding site-package %r: %r' % (site, why))
+
+
+# Monkey-patch chflags for Python2.6 since our NFS does not support it and
+# Python2.6 does not ignore that lack of support.
+# See: http://hg.python.org/cpython/rev/e12efebc3ba6/
+@patch(os, 'chflags', max_version=(2, 6))
+def os_chflags(func, *args, **kwargs):
+    """Monkey-patched to ignore "Not Supported" errors for our NFS."""
+    
+    # Some OSes don't have the function, so screw it.
+    if not func:
+        return
+    
+    try:
+        return func(*args, **kwargs)
+    except OSError, why:
+        
+        # Ignore "Not Supported" errors.
+        for err in 'EOPNOTSUPP', 'ENOTSUP':
+            if hasattr(errno, err) and why.errno == getattr(errno, err):
+                return
+        
+        # Must hardcode the errno because my version has no constant.
+        if why.errno == 45:
+            return
+        
+        # This must be an important error.
+        raise
+
+
 
 
