@@ -10,6 +10,10 @@ We have reimplemented that functionality for two reasons:
 2. We added ``__site__.pth`` files to packages to allow them to describe themselves
    and keep their ``.pth`` file in their own repository.
 
+.. warning:: Be extremely careful while modifying this package and test it very
+    thoroughly, since being able to locate any other packages is dependant on it
+    running successfully.
+    
 """
 
 import errno
