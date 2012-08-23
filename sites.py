@@ -1,36 +1,6 @@
-"""This package is responsible for setting up :data:`python:sys.path` for Western X.
-
-This adds all the directories listed within :envvar:`KS_PYTHON_SITES`, and the directory
-from which this was imported from, in a similar manner as site-packages via
-:func:`python:site.addsitedir`.
-
-We have reimplemented that functionality for two reasons:
-
-1. Our NFS was throwing some wierd errors with site.addsitedir.
-2. We added ``__site__.pth`` files to packages to allow them to describe themselves
-   and keep their ``.pth`` file in their own repository.
-
-.. warning:: Be extremely careful while modifying this package and test it very
-    thoroughly, since being able to locate any other packages is dependant on it
-    running successfully.
-    
-"""
-
 import os
 import sys
 import warnings
-
-
-def _add_to_sys_path(x):
-    """Add a directory to :data:`python:sys.path` if it is not already there.
-    
-    The directory is added BEFORE the one which imported this file, so that
-    :envvar:`KS_PYTHON_SITES` will override anything that is already in :data:`python:sys.path`.
-    
-    """
-    global insert_at
-    
-    # TODO: Make sure I don't have to deal with case-insensitive filesystems.
 
 
 def _process_pth(paths, base, file_name):
@@ -85,19 +55,21 @@ def add_site_dir(dir_name, before=None):
             _process_pth(paths, os.path.join(dir_name, file_name), '__site__.pth')
     
     # Add everything which exists to the path before the path we were asked to.
-    existing = set(sys.path)
+    existing = set(sys.path[:insert_at] if insert_at is not None else sys.path)
         
     for path in paths:
-
         path = os.path.abspath(path)
         
+        # Don't add it if this path is already on the sys.path.
         if path in existing:
             continue
         existing.add(path)
         
+        # It has to exist.
         if not os.path.exists(path):
             continue
         
+        # Put it in the right place.
         if insert_at:
             sys.path.insert(insert_at, path)
             insert_at += 1
