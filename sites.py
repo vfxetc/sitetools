@@ -20,10 +20,11 @@ def add_site_dir(dir_name, before=None):
     """Add a pseudo site-packages directory to :data:`python:sys.path`.
     
     :param str dir_name: The directory to add.
+    :param str before: A directory on :data:`sys.path` that new paths should be
+    inserted before.
     
     Looks for ``.pth`` files at the top-level and ``__site__.pth`` files within
     top-level directories.
-    
     
     """
     

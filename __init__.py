@@ -4,12 +4,12 @@ Add all directories listed within :envvar:`KS_PYTHON_SITES`, and the directory
 from which this was imported from, in a similar manner as site-packages via
 :func:`python:site.addsitedir`. We reimplemented that functionality because:
 
-1. Our NFS was throwing some wierd errors with site.addsitedir.
+1. Our NFS was throwing some wierd errors with :func:`site.addsitedir` (due to ``._*`` files).
 2. We added ``__site__.pth`` files to packages to allow them to describe themselves
    and keep their ``.pth`` file in their own repository.
 
-Also monkey-patch os.chflags to not error on our NFS (by ignoring the error).
-This was fixed in Python2.7, but we don't have that luxury.
+Also monkey-patch :func:`os.chflags` to not error on our NFS (by ignoring the
+error). This was fixed in Python2.7, but we don't have that luxury.
 
 .. warning:: Be extremely careful while modifying this package and test it very
     thoroughly, since being able to locate any other packages is dependant on it
