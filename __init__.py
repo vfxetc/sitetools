@@ -14,7 +14,7 @@ error). This was fixed in Python2.7, but we don't have that luxury.
 .. warning:: Be extremely careful while modifying this package and test it very
     thoroughly, since being able to locate any other packages is dependant on it
     running successfully.
-    
+
 """
 
 
