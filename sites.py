@@ -37,9 +37,20 @@ class _SysPathInserter(object):
             sys.path.append(path)
 
 
+_processed_pths = set()
+
+
 def _process_pth(path, base, file_name):
     """Process a ``.pth`` file similar to site.addpackage(...)."""
-    for line in open(os.path.join(base, file_name)):
+    
+    pth_path = os.path.abspath(os.path.join(base, file_name))
+    
+    # Only process this once.
+    if pth_path in _processed_pths:
+        return
+    _processed_pths.add(pth_path)    
+    
+    for line in open(pth_path):
         line = line.strip()
         
         # Blanks and comments.
