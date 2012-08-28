@@ -3,17 +3,56 @@ import sys
 import warnings
 
 
-def _process_pth(paths, base, file_name):
+class _SysPathInserter(object):
+    """Class to insert a series of paths into :data:`sys.path` incrementally."""
+    
+    def __init__(self, before=None):
+        
+        # Determine where we want to insert new paths.
+        try:
+            self.insert_at = sys.path.index(before) if before else None
+        except ValueError:
+            self.insert_at = None
+            warnings.warn('%r was not found on sys.path' % before)
+        
+    def add(self, path):
+        """Add the given path to the decided place in sys.path"""
+        
+        # sys.path always has absolute paths.
+        path = os.path.abspath(path)
+        
+        # It must exist.
+        if not os.path.exists(path):
+            return
+        
+        # It must not already be in sys.path.
+        if path in sys.path:
+            return
+        
+        # Put it in the right place.
+        if self.insert_at:
+            sys.path.insert(self.insert_at, path)
+            self.insert_at += 1
+        else:
+            sys.path.append(path)
+
+
+def _process_pth(path, base, file_name):
     """Process a ``.pth`` file similar to site.addpackage(...)."""
     for line in open(os.path.join(base, file_name)):
         line = line.strip()
-        if line.startswith('#'):
+        
+        # Blanks and comments.
+        if not line or line.startswith('#'):
             continue
+        
+        # Execs.
         if line.startswith('import'):
             exec line
             continue
-        dir_name = os.path.abspath(os.path.join(base, line))
-        paths.append(dir_name)
+        
+        # Add it.
+        path.add(os.path.join(base, line))
 
 
 def add_site_dir(dir_name, before=None):
@@ -28,17 +67,12 @@ def add_site_dir(dir_name, before=None):
     
     """
     
-    # Don't so anything if the folder doesn't exist.
+    # Don't do anything if the folder doesn't exist.
     if not os.path.exists(dir_name):
         return
-    paths = [dir_name]
     
-    # Determine where we want to insert new paths.
-    try:
-        insert_at = sys.path.index(before) if before else None
-    except ValueError:
-        insert_at = None
-        warnings.warn('%r was not found on sys.path' % before)
+    path = _SysPathInserter(before=before)
+    path.add(dir_name)
 
     # Process *.pth files in a manner similar to site.addsitedir(...).
     for file_name in os.listdir(dir_name):
@@ -49,31 +83,9 @@ def add_site_dir(dir_name, before=None):
     
         # *.pth files.
         if file_name.endswith('.pth'):
-            _process_pth(paths, dir_name, file_name)
+            _process_pth(path, dir_name, file_name)
     
         # __site__.pth files inside packages.
         if os.path.exists(os.path.join(dir_name, file_name, '__site__.pth')):
-            _process_pth(paths, os.path.join(dir_name, file_name), '__site__.pth')
-    
-    # Add everything which exists to the path before the path we were asked to.
-    existing = set(sys.path)
-        
-    for path in paths:
-        path = os.path.abspath(path)
-        
-        # Don't add it if this path is already on the sys.path.
-        if path in existing:
-            continue
-        existing.add(path)
-        
-        # It has to exist.
-        if not os.path.exists(path):
-            continue
-        
-        # Put it in the right place.
-        if insert_at:
-            sys.path.insert(insert_at, path)
-            insert_at += 1
-        else:
-            sys.path.append(path)
-        
+            _process_pth(path, os.path.join(dir_name, file_name), '__site__.pth')
+
