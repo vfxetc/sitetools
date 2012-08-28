@@ -50,6 +50,9 @@ def _process_pth(path, base, file_name):
         return
     _processed_pths.add(pth_path)    
     
+    if sys.flags.verbose:
+        print '# %s._process_pth(..., %r, %r)' % (__name__, base, file_name)
+        
     for line in open(pth_path):
         line = line.strip()
         
@@ -77,6 +80,9 @@ def add_site_dir(dir_name, before=None):
     top-level directories.
     
     """
+    
+    if sys.flags.verbose:
+        print '%s.add_site_dir(%r, before=%r)' % (__name__, dir_name, before)
     
     # Don't do anything if the folder doesn't exist.
     if not os.path.exists(dir_name):

@@ -34,12 +34,6 @@ def patch(to_patch, name=None, must_exist=True, max_version=None):
     
     """
     
-    # Passthrough if we don't want to apply the patch.
-    if max_version and sys.version[:len(max_version)] > max_version:
-        def _dummy_decorator(func):
-            return func
-        return _dummy_decorator
-    
     # Build a decorator which will apply the patch.
     def _decorator(func):
         
@@ -60,9 +54,22 @@ def patch(to_patch, name=None, must_exist=True, max_version=None):
             original.__doc__ if original else 'Original %r does not exist.' % attrname,
         ])) or None
         
-        # Install the patch if the original exists or we don't care.
-        if original is not None or not must_exist:
-            setattr(to_patch, attrname, _patch_wrapper)
+        # Bail if we don't want to apply the patch.
+        if max_version and sys.version[:len(max_version)] > max_version:
+            if sys.flags.verbose:
+                print '# %s NOT patching %r.%s with %r; version > %r' % (__name__, to_patch, attrname, func, max_version)
+            return _patch_wrapper
+        
+        # Bail if it doesn't exist.
+        if must_exist and not original:
+            if sys.flags.verbose:
+                print '# %s NOT patching %r.%s with %r; original does not exist' % (__name__, to_patch, attrname, func)
+            return _patch_wrapper
+            
+        # Install the patch.
+        if sys.flags.verbose:
+            print '# %s patching %r.%s with %r' % (__name__, to_patch, attrname, func)
+        setattr(to_patch, attrname, _patch_wrapper)
         
         # Return the *patched* function.
         return _patch_wrapper
