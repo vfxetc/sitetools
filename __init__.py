@@ -1,8 +1,12 @@
-"""Setup :data:`python:sys.path` and apply monkey-patches for Western X.
+"""Setup Python for Western X.
 
-Add all directories listed within :envvar:`KS_PYTHON_SITES`, and the directory
-from which this was imported from, in a similar manner as site-packages via
-:func:`python:site.addsitedir`. We reimplemented that functionality because:
+Variables previously frozen via :func:`sitecustomize.environ.freeze` will be
+restored.
+
+All directories listed within :envvar:`KS_PYTHON_SITES` and the directory
+from which this was imported from will be added to :data:`sys.path`, in a
+similar manner as site-packages via :func:`python:site.addsitedir`. We
+reimplemented that functionality because:
 
 1. Our NFS was throwing some wierd errors with :func:`site.addsitedir` (due to ``._*`` files).
 2. We added ``__site__.pth`` files to packages to allow them to describe themselves

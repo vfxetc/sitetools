@@ -24,6 +24,21 @@ def freeze(environ, names):
     scripts that are nessesary to bootstrap the process, but we do not want to
     carry into any subprocess. E.g. ``LD_LIBRARY_PATH``.
     
+    Usage::
+    
+        import os
+        from subprocess import call
+        
+        from sitecustomize.environ import freeze
+        
+        env = dict(os.environ)
+        env['DEMO'] = 'one'
+        freeze(env, ('DEMO', ))
+        env['DEMO'] = 'two'
+        
+        call(['python', '-c', 'import os; print os.environ["DEMO"]'], env=env)
+        # Prints: one
+        
     """
     diff = _existing_diff(environ)
     for name in names:
