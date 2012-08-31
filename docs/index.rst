@@ -5,12 +5,14 @@
 
 .. automodule:: sitecustomize
 
-``sitecustomize.sites``
------------------------
 
-.. automodule:: sitecustomize.sites
+``sitecustomize.environ``
+-----------------------------
+
+.. automodule:: sitecustomize.environ
     :members:
-    
+
+
 ``sitecustomize.monkeypatch``
 -----------------------------
 
@@ -18,4 +20,8 @@
     :members:
 
 
-    
+``sitecustomize.sites``
+-----------------------
+
+.. automodule:: sitecustomize.sites
+    :members:

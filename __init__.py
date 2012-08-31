@@ -25,6 +25,12 @@ import warnings
 
 # We need to be super careful in this module.
 try:
+    from .environ import apply_diff as environ_apply_diff
+except ImportError, why:
+    warnings.warn('Error while importing sitecustomize.environ: %r' % why)
+    def environ_apply_diff(*args, **kwargs):
+        pass
+try:
     from .sites import add_site_dir
 except ImportError, why:
     warnings.warn('Error while importing sitecustomize.sites: %r' % why)
@@ -39,6 +45,12 @@ except ImportError, why:
 
 
 __all__ = ['add_site_dir', 'patch']
+
+
+try:
+    environ_apply_diff()
+except ImportError, why:
+    warnings.warn('Error while running sitecustomize.environ.apply_diff: %r' % why)
 
 
 # Where do we want to start inserting directories into sys.path? Just before
