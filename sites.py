@@ -30,7 +30,7 @@ class _SysPathInserter(object):
             return
         
         # Put it in the right place.
-        if self.insert_at:
+        if self.insert_at is not None:
             sys.path.insert(self.insert_at, path)
             self.insert_at += 1
         else:
