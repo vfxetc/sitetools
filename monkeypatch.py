@@ -1,6 +1,8 @@
 import sys
 import functools
 
+from .utils import verbose
+
 
 def patch(to_patch, name=None, must_exist=True, max_version=None):
     """Monkey patching decorator.
@@ -56,19 +58,18 @@ def patch(to_patch, name=None, must_exist=True, max_version=None):
         
         # Bail if we don't want to apply the patch.
         if max_version and sys.version[:len(max_version)] > max_version:
-            if sys.flags.verbose:
-                print '# %s NOT patching %r.%s with %r; version > %r' % (__name__, to_patch, attrname, func, max_version)
+            verbose('# %s NOT patching %r.%s with %r; version > %r',
+                __name__, to_patch, attrname, func, max_version)
             return _patch_wrapper
         
         # Bail if it doesn't exist.
         if must_exist and not original:
-            if sys.flags.verbose:
-                print '# %s NOT patching %r.%s with %r; original does not exist' % (__name__, to_patch, attrname, func)
+            verbose('# %s NOT patching %r.%s with %r; original does not exist',
+                __name__, to_patch, attrname, func)
             return _patch_wrapper
             
         # Install the patch.
-        if sys.flags.verbose:
-            print '# %s patching %r.%s with %r' % (__name__, to_patch, attrname, func)
+        verbose('# %s patching %r.%s with %r', __name__, to_patch, attrname, func)
         setattr(to_patch, attrname, _patch_wrapper)
         
         # Return the *patched* function.

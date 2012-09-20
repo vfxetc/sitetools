@@ -27,6 +27,7 @@ import os
 import sys
 import warnings
 
+
 # We need to be super careful in this module.
 try:
     from .environ import apply_diff as environ_apply_diff

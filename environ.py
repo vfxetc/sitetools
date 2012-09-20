@@ -2,6 +2,8 @@ import os
 import json
 import sys
 
+from .utils import verbose
+
 
 VARIABLE_NAME = 'KS_PYTHON_ENVIRON_DIFF'
 
@@ -49,8 +51,9 @@ def apply_diff():
     blob = os.environ.pop(VARIABLE_NAME, None)
     diff = _loads(blob) if blob else {}
     for k, v in diff.iteritems():
-        if sys.flags.verbose:
-            print '# %s.apply_diff(...): %r -> %r' % (__name__, k, v)
+        
+        verbose('# %s.apply_diff(...): %r -> %r', __name__, k, v)
+        
         if v is None:
             os.environ.pop(k, None)
         else:
