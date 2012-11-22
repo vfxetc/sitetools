@@ -52,18 +52,13 @@ except ImportError, why:
 __all__ = ['add_site_dir', 'patch']
 
 
-try:
-    environ_apply_diff()
-except ImportError, why:
-    warnings.warn('Error while running sitecustomize.environ.apply_diff: %r' % why)
-
-
 # Where do we want to start inserting directories into sys.path? Just before
 # this module, of course. So determine where we were imported from.
 our_sys_path = os.path.abspath(os.path.join(__file__,
     os.path.pardir,
     os.path.pardir,
 ))
+
 
 # Setup the pseudo site-packages.
 sites = [x.strip() for x in os.environ.get('KS_PYTHON_SITES', '').split(':') if x]
@@ -73,6 +68,13 @@ for site in sites:
         add_site_dir(site, before=our_sys_path)
     except Exception, why:
         warnings.warn('Error while adding site-package %r: %r' % (site, why))
+
+
+# Restore frozen environment variables.
+try:
+    environ_apply_diff()
+except ImportError, why:
+    warnings.warn('Error while running sitecustomize.environ.apply_diff: %r' % why)
 
 
 # Monkey-patch chflags for Python2.6 since our NFS does not support it and

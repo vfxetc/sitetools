@@ -48,11 +48,12 @@ def freeze(environ, names):
     environ[VARIABLE_NAME] = _dumps(diff)
     
 def apply_diff():
+    verbose('# %s.apply_diff()', __name__)
     blob = os.environ.pop(VARIABLE_NAME, None)
     diff = _loads(blob) if blob else {}
     for k, v in diff.iteritems():
         
-        verbose('# %s.apply_diff(...): %r -> %r', __name__, k, v)
+        verbose('# %s.apply_diff(): %r -> %r', __name__, k, v)
         
         if v is None:
             os.environ.pop(k, None)
