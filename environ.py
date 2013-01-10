@@ -1,6 +1,5 @@
 import os
 import json
-import sys
 
 from .utils import verbose
 

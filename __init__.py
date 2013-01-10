@@ -24,7 +24,6 @@ error). This was fixed in Python2.7, but we don't have that luxury.
 
 import errno
 import os
-import sys
 import warnings
 
 

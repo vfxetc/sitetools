@@ -1,5 +1,4 @@
 import sys
-import functools
 
 from .utils import verbose
 
