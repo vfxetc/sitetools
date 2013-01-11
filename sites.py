@@ -63,6 +63,11 @@ def _process_pth(path, base, file_name):
         
         # Execs.
         if line.startswith('import'):
+            
+            # Sorry easy-install: you break our environment.
+            if file_name == 'easy-install.pth' and 'sys.__plen' in line:
+                continue
+
             exec line
             continue
         
