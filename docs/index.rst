@@ -1,27 +1,21 @@
-.. _sitecustomize:
+.. _index:
 
-``sitecustomize`` API Reference
-===============================
+Western X Python Environment
+==================
+
+Overview
+--------
 
 .. automodule:: sitecustomize
 
 
-``sitecustomize.environ``
------------------------------
+Contents
+--------
 
-.. automodule:: sitecustomize.environ
-    :members:
+.. toctree::
+    :maxdepth: 2
 
-
-``sitecustomize.monkeypatch``
------------------------------
-
-.. automodule:: sitecustomize.monkeypatch
-    :members:
-
-
-``sitecustomize.sites``
------------------------
-
-.. automodule:: sitecustomize.sites
-    :members:
+    environ
+    logging
+    monkeypatch
+    sites
