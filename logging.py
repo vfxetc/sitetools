@@ -32,7 +32,7 @@ def setup_logging():
 
             parts = spec.split(':')
             if len(parts) != 2:
-                log.error('%r is invalid log specification' % spec)
+                log.error('%r is invalid log specification; try \'name:level\'', spec)
                 continue
 
             name, level = parts
@@ -42,9 +42,9 @@ def setup_logging():
             except ValueError:
                 level = getattr(logging, level.upper(), None)
             if not isinstance(level, int):
-                log.error('%r is invalid log level')
+                log.error('%r is invalid log level', level)
                 continue
 
             logger = logging.getLogger(name)
             logger.setLevel(level)
-            log.debug('%s set to %s' % (name, level))
+            log.debug('%s set to %s', name, level)
