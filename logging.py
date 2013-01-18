@@ -11,11 +11,7 @@ log = logging.getLogger(__name__)
 
 def setup_logging():
 
-    level = {
-        '1': logging.INFO,
-        '2': logging.DEBUG,
-    }.get(os.environ.get('KS_VERBOSE'))
-
+    level = logging.DEBUG if os.environ.get('KS_VERBOSE') else logging.INFO
     logging.basicConfig(
         format='%(asctime)-15s %(levelname)s %(name)s: %(message)s',
         level=level,
