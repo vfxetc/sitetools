@@ -111,3 +111,21 @@ def add_site_dir(dir_name, before=None):
         if os.path.exists(os.path.join(dir_name, file_name, '__site__.pth')):
             _process_pth(path, os.path.join(dir_name, file_name), '__site__.pth')
 
+
+def _setup():
+    
+    # Where do we want to start inserting directories into sys.path? Just before
+    # this module, of course. So determine where we were imported from.
+    our_sys_path = os.path.abspath(os.path.join(__file__,
+        os.path.pardir,
+        os.path.pardir,
+    ))
+
+    sites = [x.strip() for x in os.environ.get('KS_PYTHON_SITES', '').split(':') if x]
+    sites.append(our_sys_path)
+    for site in sites:
+        try:
+            add_site_dir(site, before=our_sys_path)
+        except Exception, why:
+            warnings.warn('Error while adding site-package %r: %r' % (site, why))
+

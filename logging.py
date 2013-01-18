@@ -9,8 +9,9 @@ import sys
 log = logging.getLogger(__name__)
 
 
-def setup_logging():
+def _setup():
 
+    # Do the basic config, dumping to stderr.
     level = logging.DEBUG if os.environ.get('KS_VERBOSE') else logging.INFO
     logging.basicConfig(
         format='%(asctime)-15s %(levelname)s %(name)s: %(message)s',
@@ -18,6 +19,7 @@ def setup_logging():
         stream=sys.stderr,
     )
 
+    # Setup specially requested levels, usually from `dev --log name:LEVEL`
     requested_levels = os.environ.get('KS_LOG_LEVELS')
     if requested_levels:
 

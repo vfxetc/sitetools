@@ -45,7 +45,8 @@ def freeze(environ, names):
     for name in names:
         diff[name] = environ.get(name)
     environ[VARIABLE_NAME] = _dumps(diff)
-    
+
+
 def apply_diff():
     verbose('# %s.apply_diff()', __name__)
     blob = os.environ.pop(VARIABLE_NAME, None)
@@ -58,3 +59,7 @@ def apply_diff():
             os.environ.pop(k, None)
         else:
             os.environ[k] = v
+
+
+def _setup():
+    apply_diff()
