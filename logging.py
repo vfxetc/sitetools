@@ -9,10 +9,28 @@ import sys
 log = logging.getLogger(__name__)
 
 
+BLATHER = 1
+TRACE = 5
+
+
 def _setup():
 
+    # Setup extra levels.
+    logging.BLATHER = BLATHER
+    logging.addLevelName(BLATHER, 'BLATHER')
+    logging.TRACE = TRACE
+    logging.addLevelName(TRACE, 'TRACE')
+
+    # Determine the level to use.
+    verbosity = os.environ.get('KS_VERBOSE', '0')
+    level = {
+        '0': logging.INFO,
+        '1': logging.DEBUG,
+        '2': logging.TRACE,
+        '3': logging.BLATHER,
+    }.get(verbosity, logging.DEBUG)
+
     # Do the basic config, dumping to stderr.
-    level = logging.DEBUG if os.environ.get('KS_VERBOSE') else logging.INFO
     logging.basicConfig(
         format='%(asctime)-15s %(levelname)s %(name)s: %(message)s',
         level=level,
@@ -45,4 +63,4 @@ def _setup():
 
             logger = logging.getLogger(name)
             logger.setLevel(level)
-            log.debug('%s set to %s', name, level)
+            log.log(5, '%s set to %s', name, level)

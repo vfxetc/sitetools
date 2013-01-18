@@ -56,7 +56,7 @@ def _process_pth(path, base, file_name):
         return
     _processed_pths.add(pth_path)    
     
-    log.debug('_process_pth(..., %r, %r)', base, file_name)
+    log.log(1, '_process_pth(..., %r, %r)', base, file_name)
         
     for line in open(pth_path):
         line = line.strip()
@@ -91,7 +91,7 @@ def add_site_dir(dir_name, before=None):
     
     """
     
-    log.debug('add_site_dir(%r, before=%r)', dir_name, before)
+    log.log(5, 'add_site_dir(%r, before=%r)', dir_name, before)
     
     # Don't do anything if the folder doesn't exist.
     if not os.path.exists(dir_name):

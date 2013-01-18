@@ -56,13 +56,13 @@ def apply_diff():
     diff = _loads(blob) if blob else {}
     if diff:
         for k, v in diff.iteritems():
-            log.debug('%s="%s"', k, v)
+            log.log(5, '%s="%s"', k, v)
             if v is None:
                 os.environ.pop(k, None)
             else:
                 os.environ[k] = v
     else:
-        log.debug('nothing to apply')
+        log.log(5, 'nothing to apply')
 
 
 def _setup():
