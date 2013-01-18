@@ -1,8 +1,12 @@
+from __future__ import absolute_import
+
+import logging
 import os
 import errno
 import sys
 
-from .utils import verbose
+
+log = logging.getLogger(__name__)
 
 
 def patch(to_patch, name=None, must_exist=True, max_version=None):
@@ -59,18 +63,27 @@ def patch(to_patch, name=None, must_exist=True, max_version=None):
         
         # Bail if we don't want to apply the patch.
         if max_version and sys.version[:len(max_version)] > max_version:
-            verbose('# %s NOT patching %r.%s with %r; version > %r',
-                __name__, to_patch, attrname, func, max_version)
+            log.debug('NOT patching %s.%s with %s.%s; version > %r',
+                getattr(to_patch, '__name__', to_patch),
+                attrname,
+                getattr(func, '__module__', 'unknown'),
+                getattr(func, '__name__', func),
+                max_version,
+            )
             return _patch_wrapper
         
         # Bail if it doesn't exist.
         if must_exist and not original:
-            verbose('# %s NOT patching %r.%s with %r; original does not exist',
-                __name__, to_patch, attrname, func)
+            log.debug('NOT patching %s.%s with %s.%s; original does not exist',
+                getattr(to_patch, '__name__', to_patch),
+                attrname,
+                getattr(func, '__module__', 'unknown'),
+                getattr(func, '__name__', func),
+            )
             return _patch_wrapper
             
         # Install the patch.
-        verbose('# %s patching %r.%s with %r', __name__, to_patch, attrname, func)
+        log.debug('patching %r.%s with %r', to_patch, attrname, func)
         setattr(to_patch, attrname, _patch_wrapper)
         
         # Return the *patched* function.

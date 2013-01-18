@@ -1,8 +1,11 @@
+from __future__ import absolute_import
+
+import logging
 import os
 import json
 
-from .utils import verbose
 
+log = logging.getLogger(__name__)
 
 VARIABLE_NAME = 'KS_PYTHON_ENVIRON_DIFF'
 
@@ -13,6 +16,7 @@ _loads = json.loads
 def _existing_diff(environ):
     blob = environ.get(VARIABLE_NAME)
     return _loads(blob) if blob else {}
+
 
 def freeze(environ, names):
     """Flag the given names to reset to their current value in the next Python.
@@ -48,18 +52,19 @@ def freeze(environ, names):
 
 
 def apply_diff():
-    verbose('# %s.apply_diff()', __name__)
     blob = os.environ.pop(VARIABLE_NAME, None)
     diff = _loads(blob) if blob else {}
-    for k, v in diff.iteritems():
-        
-        verbose('# %s.apply_diff(): %r -> %r', __name__, k, v)
-        
-        if v is None:
-            os.environ.pop(k, None)
-        else:
-            os.environ[k] = v
+    if diff:
+        for k, v in diff.iteritems():
+            log.debug('%s="%s"', k, v)
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+    else:
+        log.debug('nothing to apply')
 
 
 def _setup():
     apply_diff()
+
