@@ -48,3 +48,7 @@ import_and_call('sitecustomize.logging', '_setup')
 import_and_call('sitecustomize.sites', '_setup')
 import_and_call('sitecustomize.environ', '_setup')
 import_and_call('sitecustomize.monkeypatch', '_setup')
+
+# Temporary import until I can adjust entrypoints.
+from sitecustomize.sites import add_site_dir
+
