@@ -4,7 +4,7 @@ import logging
 import os
 import re
 import sys
-
+import warnings
 
 log = logging.getLogger(__name__)
 
@@ -13,7 +13,21 @@ BLATHER = 1
 TRACE = 5
 
 
+def _show_warning(message, category, filename, lineno, file=None, line=None):
+    if file is not None:
+        warnings._showwarning(message, category, filename, lineno, file, line)
+    else:
+        s = warnings.formatwarning(message, category, filename, lineno, line)
+        logger = logging.getLogger("py.warnings")
+        logger.warning("%s", s)
+
+
 def _setup():
+
+
+    # Hook warnings into logging. In Python2.7 we could use
+    # logging.captureWarnings, but we are supporting earlier versions.
+    warnings.showwarning = _show_warning
 
     # Setup extra levels.
     logging.BLATHER = BLATHER
@@ -64,3 +78,4 @@ def _setup():
             logger = logging.getLogger(name)
             logger.setLevel(level)
             log.log(5, '%s set to %s', name, level)
+
