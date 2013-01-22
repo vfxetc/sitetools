@@ -4,6 +4,7 @@ import codecs
 import datetime
 import logging
 import os
+import pwd
 import re
 import socket
 import sys
@@ -34,17 +35,33 @@ _context = {}
 def _get_context():
     if not _context:
 
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(('8.8.8.8', 53))
-        ip = s.getsockname()[0]
+        # Try to get the outward-facing IP of this machine. We connect
+        # to a remote IP (in this case, Google's DNS) and read out the
+        # IP that the socket picked. Since we are using a DGRAM socket,
+        # there really isn't any connection going on, so it doesn't
+        # matter who we connect to.
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.settimeout(0)
+            s.connect(('8.8.8.8', 53))
+            ip = s.getsockname()[0]
+        except Exception:
+            ip = '0.0.0.0'
+
+        # Get the current login name. We must be rather defensive about it.
+        try:
+            login = pwd.getpwuid(os.getuid())[0]
+        except (ValueError, KeyError, OSError):
+            login = os.environ.get('USER', 'unknown')
 
         _context.update({
             'pid': os.getpid(),
             'ip': ip,
-            'login': os.getlogin(),
+            'login': login,
             'date': _context_start_time.strftime('%Y-%m-%d'),
             'time': _context_start_time.strftime('%H-%M-%S'),
         })
+
     return _context
 
 
