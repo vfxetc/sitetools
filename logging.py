@@ -70,12 +70,39 @@ def _get_context():
     return _context
 
 
+class _NullFile(object):
+
+    def write(self, *args):
+        pass
+
+    def flush(self):
+        pass
+
+
+class _FileSafetyWrapper(object):
+
+    def __init__(self, fh):
+        self._fh = fh
+        for name in ('flush', 'close', 'encoding'):
+            if hasattr(fh, name):
+                setattr(self, name, getattr(fh, name))
+
+    def __getattr__(self, name):
+        return getattr(self._fh, name)
+
+    def write(self, *args):
+        try:
+            self._fh.write(*args)
+        except Exception as e:
+            warnings.warn('Error while writing to file: %r' % e)
+
+
 class PatternedFileHandler(logging.FileHandler):
 
     def _open(self):
 
-        # E.g.: /Volumes/VFX/logs/{date}/{login}.{ip}/{time}.{pid}.log
-        #       /Volumes/VFX/logs/2013-01-22/mboers.10.2.200.1/11-15-15.12345.log
+        # E.g.: /Volumes/VFX/logs/{date}/{login}@{ip}/{time}.{pid}.log
+        #       /Volumes/VFX/logs/2013-01-22/mboers@10.2.200.1/11-15-15.12345.log
 
         file_path = self.baseFilename.format(**_get_context())
         dir_path = os.path.dirname(file_path)
@@ -84,11 +111,12 @@ class PatternedFileHandler(logging.FileHandler):
             os.makedirs(dir_path)
         except OSError as e:
             if e.errno != 17: # File exists.
-                raise
+                warnings.warn('Error while creating log directory: %r' % e)
+                return _NullFile()
         finally:
             os.umask(umask)
 
-        return open(file_path, 'ab')
+        return _FileSafetyWrapper(open(file_path, 'ab'))
 
 
 class ContextInfoFilter(logging.Filter):
@@ -124,11 +152,11 @@ def _setup():
         warnings.simplefilter('ignore', DeprecationWarning)
 
     # Do the basic config, dumping to stderr.
-    logging.basicConfig(
-        format=BASE_FORMAT,
-        level=level,
-        stream=sys.stderr,
-    )
+    root = logging.getLogger()
+    root.setLevel(level)
+    handler = logging.StreamHandler(_FileSafetyWrapper(sys.stderr))
+    handler.setFormatter(logging.Formatter(BASE_FORMAT))
+    root.addHandler(handler)
 
     # Setup specially requested levels, usually from `dev --log name:LEVEL`
     requested_levels = os.environ.get('KS_PYTHON_LOG_LEVELS') or os.environ.get('KS_LOG_LEVELS')
@@ -170,7 +198,7 @@ def _setup():
 
 def _setup_maya():
     """Setup Maya logging, but be *really* defensive about it."""
-    
+
     try:
         import maya.utils
     except ImportError:
@@ -182,6 +210,7 @@ def _setup_maya():
         maya_handler.removeHandler(maya.utils.shellLogHandler())
 
     # Change the default format on the UI handler.
+    # TODO: Get some safety wrapping arounc this handler.
     if hasattr(maya.utils, 'guiLogHandler'):
         format = os.environ.get('MAYA_GUI_LOGGER_FORMAT')
         if not format:
