@@ -17,6 +17,7 @@ TRACE = 5
 
 
 BASE_FORMAT = '%(asctime)-15s %(levelname)s %(name)s: %(message)s'
+MAYA_FORMAT = '%(name)s: %(message)s'
 FULL_FORMAT = '%(asctime)-15s %(login)s@%(ip)s:%(pid)d %(levelname)s %(name)s: %(message)s'
 
 def _show_warning(message, category, filename, lineno, file=None, line=None):
@@ -140,4 +141,26 @@ def _setup():
         handler.setFormatter(logging.Formatter(FULL_FORMAT))
         handler.addFilter(ContextInfoFilter())
         logging.getLogger().addHandler(handler)
+
+    # Setup Maya's loggers.
+    try:
+        import maya.utils
+    except ImportError:
+        pass
+    else:
+        _setup_maya()
+
+
+def _setup_maya():
+
+    import maya.utils
+
+    # Remove the shell handler; we have created one ourselves.
+    maya_handler = logging.getLogger(os.environ.get('MAYA_DEFAULT_LOGGER_NAME'))
+    maya_handler.removeHandler(maya.utils.shellLogHandler())
+
+    # Change the default format on the UI handler.
+    format = os.environ.get('MAYA_GUI_LOGGER_FORMAT')
+    if not format:
+        maya.utils.guiLogHandler().setFormatter(logging.Formatter(MAYA_FORMAT))
 
