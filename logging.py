@@ -94,7 +94,7 @@ class _FileSafetyWrapper(object):
         try:
             self._fh.write(*args)
         except Exception as e:
-            warnings.warn('Error while writing to file: %r' % e)
+            print '# Error while writing log:', repr(e)
 
 
 class PatternedFileHandler(logging.FileHandler):
@@ -161,7 +161,6 @@ def _setup():
     # Setup specially requested levels, usually from `dev --log name:LEVEL`
     requested_levels = os.environ.get('KS_PYTHON_LOG_LEVELS') or os.environ.get('KS_LOG_LEVELS')
     if requested_levels:
-
         requested_levels = [x.strip() for x in re.split(r'[\s,]+', requested_levels)]
         requested_levels = [x for x in requested_levels if x]
 
