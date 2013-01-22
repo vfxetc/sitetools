@@ -29,7 +29,7 @@ def _show_warning(message, category, filename, lineno, file=None, line=None):
         logger.warning("%s", s)
 
 
-_context_start_time = datetime.datetime.utcnow()
+_context_start_time = datetime.datetime.now()
 _context = {}
 def _get_context():
     if not _context:
