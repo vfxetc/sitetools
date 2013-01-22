@@ -4,6 +4,7 @@ import logging
 import os
 import errno
 import sys
+import warnings
 
 from metatools.monkeypatch import patch
 
@@ -36,4 +37,13 @@ def _setup():
             
             # This must be an important error.
             raise
+
+
+    # Do not use linecache to get the source line if the filename does not
+    # appear to be Python source.
+    @patch(warnings)
+    def formatwarning(func, message, category, filename, lineno, line=None):
+        if filename and os.path.splitext(filename)[1] not in ('.py', ):
+            line = ''
+        return func(message, category, filename, lineno, line=line).rstrip()
 
