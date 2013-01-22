@@ -13,14 +13,19 @@ import warnings
 log = logging.getLogger(__name__)
 
 
+# Our custom log levels.
 BLATHER = 1
 TRACE = 5
 
 
+# Our log formats.
 BASE_FORMAT = '%(asctime)-15s %(levelname)s %(name)s: %(message)s'
 MAYA_FORMAT = '%(name)s: %(message)s'
 FULL_FORMAT = '%(asctime)-15s %(login)s@%(ip)s:%(pid)d %(levelname)s %(name)s: %(message)s'
 
+
+# Replacment showwarning that backs onto loggers; nessesary since
+# logging.captureWarnings is new to 2.7.
 def _show_warning(message, category, filename, lineno, file=None, line=None):
     if file is not None:
         warnings._showwarning(message, category, filename, lineno, file, line)
@@ -70,7 +75,7 @@ class PatternedFileHandler(logging.FileHandler):
     def _open(self):
 
         # E.g.: /Volumes/VFX/logs/{date}/{login}.{ip}/{time}.{pid}.log
-        # /Volumes/VFX/logs/2013-01-22/mboers.10.2.200.1/11-15-15.12345.log
+        #       /Volumes/VFX/logs/2013-01-22/mboers.10.2.200.1/11-15-15.12345.log
 
         file_path = self.baseFilename.format(**_get_context())
         dir_path = os.path.dirname(file_path)
@@ -95,7 +100,6 @@ class ContextInfoFilter(logging.Filter):
 
 def _setup():
 
-
     # Hook warnings into logging. In Python2.7 we could use
     # logging.captureWarnings, but we are supporting earlier versions.
     warnings.showwarning = _show_warning
@@ -115,6 +119,10 @@ def _setup():
         '3': logging.BLATHER,
     }.get(verbosity, logging.DEBUG)
 
+    # Ignore all DeprecationWarnings unless we are atleast slightly verbose
+    if level >= logging.INFO:
+        warnings.simplefilter('ignore', DeprecationWarning)
+
     # Do the basic config, dumping to stderr.
     logging.basicConfig(
         format=BASE_FORMAT,
@@ -123,7 +131,7 @@ def _setup():
     )
 
     # Setup specially requested levels, usually from `dev --log name:LEVEL`
-    requested_levels = os.environ.get('KS_LOG_LEVELS')
+    requested_levels = os.environ.get('KS_PYTHON_LOG_LEVELS') or os.environ.get('KS_LOG_LEVELS')
     if requested_levels:
 
         requested_levels = [x.strip() for x in re.split(r'[\s,]+', requested_levels)]
