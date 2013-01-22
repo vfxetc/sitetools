@@ -49,6 +49,12 @@ import_and_call('sitecustomize.sites', '_setup')
 import_and_call('sitecustomize.environ', '_setup')
 import_and_call('sitecustomize.monkeypatch', '_setup')
 
+
+# Setup Maya's loggers. Ideally this would be in a Maya-specific location,
+# but I can't really think of anywhere appropriate.
+import_and_call('sitecustomize.logging', '_setup_maya')
+
+
 # Temporary import until I can adjust entrypoints.
 from sitecustomize.sites import add_site_dir
 

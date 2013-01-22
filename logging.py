@@ -142,25 +142,23 @@ def _setup():
         handler.addFilter(ContextInfoFilter())
         logging.getLogger().addHandler(handler)
 
-    # Setup Maya's loggers.
+
+def _setup_maya():
+    """Setup Maya logging, but be *really* defensive about it."""
+    
     try:
         import maya.utils
     except ImportError:
-        pass
-    else:
-        _setup_maya()
-
-
-def _setup_maya():
-
-    import maya.utils
+        return
 
     # Remove the shell handler; we have created one ourselves.
-    maya_handler = logging.getLogger(os.environ.get('MAYA_DEFAULT_LOGGER_NAME'))
-    maya_handler.removeHandler(maya.utils.shellLogHandler())
+    if hasattr(maya.utils, 'shellLogHandler'):
+        maya_handler = logging.getLogger(os.environ.get('MAYA_DEFAULT_LOGGER_NAME'))
+        maya_handler.removeHandler(maya.utils.shellLogHandler())
 
     # Change the default format on the UI handler.
-    format = os.environ.get('MAYA_GUI_LOGGER_FORMAT')
-    if not format:
-        maya.utils.guiLogHandler().setFormatter(logging.Formatter(MAYA_FORMAT))
+    if hasattr(maya.utils, 'guiLogHandler'):
+        format = os.environ.get('MAYA_GUI_LOGGER_FORMAT')
+        if not format:
+            maya.utils.guiLogHandler().setFormatter(logging.Formatter(MAYA_FORMAT))
 
