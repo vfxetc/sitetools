@@ -1,8 +1,11 @@
 from __future__ import absolute_import
 
+import codecs
+import datetime
 import logging
 import os
 import re
+import socket
 import sys
 import warnings
 
@@ -13,6 +16,9 @@ BLATHER = 1
 TRACE = 5
 
 
+BASE_FORMAT = '%(asctime)-15s %(levelname)s %(name)s: %(message)s'
+FULL_FORMAT = '%(asctime)-15s %(login)s@%(ip)s:%(pid)d %(levelname)s %(name)s: %(message)s'
+
 def _show_warning(message, category, filename, lineno, file=None, line=None):
     if file is not None:
         warnings._showwarning(message, category, filename, lineno, file, line)
@@ -20,6 +26,53 @@ def _show_warning(message, category, filename, lineno, file=None, line=None):
         s = warnings.formatwarning(message, category, filename, lineno, line)
         logger = logging.getLogger("py.warnings")
         logger.warning("%s", s)
+
+
+_context_start_time = datetime.datetime.utcnow()
+_context = {}
+def _get_context():
+    if not _context:
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 53))
+        ip = s.getsockname()[0]
+
+        _context.update({
+            'pid': os.getpid(),
+            'ip': ip,
+            'login': os.getlogin(),
+            'date': _context_start_time.strftime('%Y-%m-%d'),
+            'time': _context_start_time.strftime('%H-%M-%S'),
+        })
+    return _context
+
+
+class PatternedFileHandler(logging.FileHandler):
+
+    def _open(self):
+
+        # E.g.: /Volumes/VFX/logs/{date}/{login}.{ip}/{time}.{pid}.log
+        # /Volumes/VFX/logs/2013-01-22/mboers.10.2.200.1/11-15-15.12345.log
+
+        file_path = self.baseFilename.format(**_get_context())
+        dir_path = os.path.dirname(file_path)
+        umask = os.umask(0)
+        try:
+            os.makedirs(dir_path)
+        except OSError as e:
+            if e.errno != 17: # File exists.
+                raise
+        finally:
+            os.umask(umask)
+
+        return open(file_path, 'ab')
+
+
+class ContextInfoFilter(logging.Filter):
+
+    def filter(self, record):
+        record.__dict__.update(_get_context())
+        return True
 
 
 def _setup():
@@ -46,7 +99,7 @@ def _setup():
 
     # Do the basic config, dumping to stderr.
     logging.basicConfig(
-        format='%(asctime)-15s %(levelname)s %(name)s: %(message)s',
+        format=BASE_FORMAT,
         level=level,
         stream=sys.stderr,
     )
@@ -78,4 +131,13 @@ def _setup():
             logger = logging.getLogger(name)
             logger.setLevel(level)
             log.log(5, '%s set to %s', name, level)
+
+    # Setup logging to a file, if requested.
+    pattern = os.environ.get('KS_PYTHON_LOG_FILE')
+    if pattern:
+        handler = PatternedFileHandler(pattern, delay=True)
+        handler.setLevel(logging.INFO)
+        handler.setFormatter(logging.Formatter(FULL_FORMAT))
+        handler.addFilter(ContextInfoFilter())
+        logging.getLogger().addHandler(handler)
 
