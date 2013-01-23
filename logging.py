@@ -158,6 +158,10 @@ def _setup():
     handler.setFormatter(logging.Formatter(BASE_FORMAT))
     root.addHandler(handler)
 
+    # Set the levels on a few (verbose) loggers.
+    for name, level in (('pymel.core', logging.WARNING), ):
+        logging.getLogger(name).setLevel(level)
+    
     # Setup specially requested levels, usually from `dev --log name:LEVEL`
     requested_levels = os.environ.get('KS_PYTHON_LOG_LEVELS') or os.environ.get('KS_LOG_LEVELS')
     if requested_levels:
