@@ -45,5 +45,7 @@ def _setup():
     def formatwarning(func, message, category, filename, lineno, line=None):
         if filename and os.path.splitext(filename)[1] not in ('.py', ):
             line = ''
-        return func(message, category, filename, lineno, line=line).rstrip()
-
+        if sys.version_info > (2, 6):
+            return func(message, category, filename, lineno, line=line).rstrip()
+        else:
+            return func(message, category, filename, lineno).rstrip()

@@ -28,7 +28,7 @@ def import_and_call(mod_name, func_name, *args, **kwargs):
 
     try:
         mod = __import__(mod_name, fromlist=['.'])
-    except ImportError as e:
+    except (ImportError, SyntaxError), e:
         warnings.warn('Error while importing %s to call %s: %r' % (mod_name, func_name, e))
         return
 
@@ -39,7 +39,7 @@ def import_and_call(mod_name, func_name, *args, **kwargs):
 
     try:
         func(*args, **kwargs)
-    except Exception as e:
+    except Exception, e:
         warnings.warn('Error while calling %s.%s: %r' % (mod_name, func_name, e))
 
 
