@@ -21,6 +21,7 @@ error). This was fixed in Python2.7, but we don't have that luxury.
 
 """
 
+import traceback
 import warnings
 
 
@@ -29,7 +30,7 @@ def import_and_call(mod_name, func_name, *args, **kwargs):
     try:
         mod = __import__(mod_name, fromlist=['.'])
     except (ImportError, SyntaxError), e:
-        warnings.warn('Error while importing %s to call %s: %r' % (mod_name, func_name, e))
+        warnings.warn('Error while importing %s to call %s\n%s' % (mod_name, func_name, traceback.format_exc()))
         return
 
     func = getattr(mod, func_name, None)
@@ -40,7 +41,7 @@ def import_and_call(mod_name, func_name, *args, **kwargs):
     try:
         func(*args, **kwargs)
     except Exception, e:
-        warnings.warn('Error while calling %s.%s: %r' % (mod_name, func_name, e))
+        warnings.warn('Error while calling %s.%s\n%s' % (mod_name, func_name, traceback.format_exc()))
 
 
 import_and_call('sitecustomize.logging', '_setup')
