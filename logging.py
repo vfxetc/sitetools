@@ -159,7 +159,7 @@ def _setup():
     root.addHandler(handler)
 
     # Set the levels on a few (verbose) loggers.
-    for name, level in (('pymel.core', logging.WARNING), ):
+    for name, level in (('pymel', logging.WARNING), ):
         logging.getLogger(name).setLevel(level)
     
     # Setup specially requested levels, usually from `dev --log name:LEVEL`
