@@ -126,7 +126,23 @@ class ContextInfoFilter(logging.Filter):
         return True
 
 
+def _patch_file_handler():
+
+    # Older than 2.6.2, the "delay" kwarg to a FileHandler would result
+    # in one of the superclasses not getting initialized.
+    if sys.version_info < (2, 6, 2):
+        old = logging.FileHandler.__init__
+        def new(self, *args, **kwargs):
+            old(self, *args, **kwargs)
+            if not hasattr(self, 'filters'):
+                logging.Handler.__init__(self)
+        logging.FileHandler.__init__ = new
+
+
 def _setup():
+
+    # Fix some bugs in the stdlib.
+    _patch_file_handler()
 
     # Hook warnings into logging. In Python2.7 we could use
     # logging.captureWarnings, but we are supporting earlier versions.

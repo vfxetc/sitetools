@@ -44,7 +44,7 @@ def import_and_call(mod_name, func_name, *args, **kwargs):
         warnings.warn('Error while calling %s.%s\n%s' % (mod_name, func_name, traceback.format_exc()))
 
 
-import_and_call('sitecustomize.logging', '_setup')
+import_and_call('sitecustomize.logs', '_setup')
 import_and_call('sitecustomize.sites', '_setup')
 import_and_call('sitecustomize.environ', '_setup')
 import_and_call('sitecustomize.monkeypatch', '_setup')
@@ -52,7 +52,7 @@ import_and_call('sitecustomize.monkeypatch', '_setup')
 
 # Setup Maya's loggers. Ideally this would be in a Maya-specific location,
 # but I can't really think of anywhere appropriate.
-import_and_call('sitecustomize.logging', '_setup_maya')
+import_and_call('sitecustomize.logs', '_setup_maya')
 
 
 # Temporary import until I can adjust entrypoints.

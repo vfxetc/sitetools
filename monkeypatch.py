@@ -49,3 +49,4 @@ def _setup():
             return func(message, category, filename, lineno, line=line).rstrip()
         else:
             return func(message, category, filename, lineno).rstrip()
+
