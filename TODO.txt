@@ -10,6 +10,8 @@
     - extensions to site-packages
     - utils.verbose
 
+- Implement __pycache__ in metatools and sitecustomize
+  see: http://www.python.org/dev/peps/pep-3147
 
 - support platform-specific Python modules
 
