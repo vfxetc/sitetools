@@ -1,7 +1,7 @@
 .. _index:
 
 Western X Python Environment
-==================
+============================
 
 Overview
 --------
@@ -15,7 +15,6 @@ Contents
 .. toctree::
     :maxdepth: 2
 
+    sites
     environ
     logging
-    monkeypatch
-    sites

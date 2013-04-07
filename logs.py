@@ -1,3 +1,59 @@
+"""
+Python's `stdlib logging <http://docs.python.org/2/library/logging.html>`_ is
+setup as part of the sitecustomize initialization sequence. By default,
+anything ``INFO`` and above will be logged to a location as determined by
+:envvar:`KS_PYTHON_LOG_FILE`.
+
+
+Debugging via Logging
+---------------------
+
+It is highly recommended that you use ``DEBUG`` level logging instead of print statements, since they will not show up to the end users unless it is requested, and then key locations which need debugging output will already have it without having to re-determine where the trouble parts are. It is recommended to use the following pattern at the top of your files::
+
+    import logging
+    log = logging.getLogger(__name__)
+
+    # Do stuff.
+
+    log.debug('Something crazy is happening...')
+
+You can then get those debug logs dumped to your terminal by using the :ref:`dev wrapper <dev_command>` in verbose mode::
+
+    $ dev -v python -m my.awesome.module
+    2013-04-07 13:48:08,416 DEBUG my.awesome.module: Something crazy is happening...
+
+
+Environment Variables
+---------------------
+
+.. envvar:: KS_PYTHON_LOG_FILE
+
+    A format string for determining where to save ``logging`` logs. Defaults
+    (in the WesternX environment) to::
+
+        /Volumes/VFX/logs/{date}/{login}@{ip}/{time}.{pid}.log
+
+    Keys available include: ``date``, ``time``, ``login``, ``ip``, and ``pid``.
+
+
+.. envvar:: KS_PYTHON_LOG_LEVELS
+
+    A space-or-comma-delimited list of logger names and minimum record levels. E.g.::
+
+        $ export KS_PYTHON_LOG_LEVELS=:WARNING,mayatools:DEBUG
+
+    would set the general logging threshold to :const:`logging.WARNING`, but anything
+    within ``mayatools`` to :const:`logging.DEBUG`.
+
+    In an emergency this can effectively disable the logging system by setting::
+
+        $ export KS_PYTHON_LOG_LEVELS=:100
+
+    which is too high for any (built-in) log levels.
+
+
+"""
+
 from __future__ import absolute_import
 
 import codecs

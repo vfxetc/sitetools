@@ -3,5 +3,5 @@
 Logging
 =======
 
-.. automodule:: sitecustomize.logging
+.. automodule:: sitecustomize.logs
     :members:
