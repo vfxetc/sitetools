@@ -15,8 +15,29 @@ import sys, os
 
 # Detect if we are on Read the Docs
 read_the_docs = os.environ.get('READTHEDOCS', None) == 'True'
-if read_the_docs:
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+# Force our sitecustomize to be the one that gets imported.
+if True or read_the_docs:
+
+    for name in sys.modules.keys():
+      if name.split('.')[-1] == 'sitecustomize':
+        del sys.modules[name]
+
+    print 'Loading sitecustomize...'
+    import imp
+    init_dir = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
+    imp.load_module(
+        'sitecustomize',
+        open(os.path.join(init_dir, '__init__.py')),
+        init_dir,
+        ('.py', 'r', imp.PY_SOURCE | imp.PKG_DIRECTORY),
+    )
+
+    print 'Importing sitecustomize...'
+    import sitecustomize
+    print 'Found', sitecustomize, 'with', sitecustomize.__path__
+
+
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
