@@ -100,9 +100,15 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ---------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-html_theme = 'flask'
+if not read_the_docs:
+
+    # The theme to use for HTML and HTML Help pages.  See the documentation for
+    # a list of builtin themes.
+    html_theme = 'flask'
+
+    # Add any paths that contain custom themes here, relative to this directory.
+    sys.path.append(os.path.abspath('../../docs/_themes/flask'))
+    html_theme_path = [os.path.abspath('../../docs/_themes/flask')]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -110,11 +116,6 @@ html_theme = 'flask'
 html_theme_options = {
     'index_logo': None,
 }
-
-
-# Add any paths that contain custom themes here, relative to this directory.
-sys.path.append(os.path.abspath('../../docs/_themes/flask'))
-html_theme_path = [os.path.abspath('../../docs/_themes/flask')]
 
 
 # The name for this set of Sphinx documents.  If None, it defaults to
