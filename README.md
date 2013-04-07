@@ -1,5 +1,5 @@
-Extending the Python Environment
-================================
+The WesternX Python Environment
+===============================
 
 This package is responsible for establishing the Python execution environment for Western X. The major tasks it performs are:
 
@@ -10,7 +10,8 @@ This package is responsible for establishing the Python execution environment fo
 
 For this to function in our environment it must be directly importable, and so this package is not arranged for consumption by `easy_install` or `pip`. When placed somewhere visible by `sys.path` (e.g. via `$PYTHONPATH`) it will run at Python startup.
 
-TODO: Link to docs (after they are written).
+[Read the docs][rtd], and good luck!
 
 [pylib-logging]: http://docs.python.org/2/library/logging.html
 [pylib-addsitedir]: http://docs.python.org/2/library/site.html#site.addsitedir
+[rtd]: https://westernx-sitecustomize.readthedocs.org/en/latest/
