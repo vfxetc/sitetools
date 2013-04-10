@@ -121,15 +121,16 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ---------------------------------------------------
 
-if not read_the_docs:
-
-    # The theme to use for HTML and HTML Help pages.  See the documentation for
-    # a list of builtin themes.
-    html_theme = 'flask'
-
-    # Add any paths that contain custom themes here, relative to this directory.
-    sys.path.append(os.path.abspath('../../docs/_themes/flask'))
-    html_theme_path = [os.path.abspath('../../docs/_themes/flask')]
+local_theme_path = os.path.abspath('../../docs/_themes/westernx')
+if os.path.exists(local_theme_path):
+    sys.path.append(local_theme_path)
+    html_theme_path = [local_theme_path]
+    html_theme = 'westernx'
+    html_theme_options = {
+        'index_logo': None,
+    }
+else:
+    html_theme = 'default'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
