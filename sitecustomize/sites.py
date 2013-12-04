@@ -24,7 +24,7 @@ limited to)::
     ./systems/python
 
 These are added by Python at runtime via this package, which adds each directory within
-:envvar:`KS_PYTHON_SITES` (and the directory from which
+:envvar:`PYTHONSITES` (and the directory from which
 ``sitecustomize`` was imported) as pseudo site-
 packages. First, it adds the directory to the :data:`python:sys.path`.
 Then it searches for ``*.pth`` files within that directory and processes
@@ -42,7 +42,7 @@ key_base/__site__.pth <../../../../key_base/__site__.pth>`_.
 Environment Variables
 ---------------------
 
-.. envvar:: KS_PYTHON_SITES
+.. envvar:: PYTHONSITES
 
     A colon-delimited list of directories which will be added as pseudo
     site-packages (see :ref:`python_setup`) before :envvar:`KS_TOOLS`. Note
@@ -196,7 +196,7 @@ def _setup():
         os.path.pardir,
     ))
 
-    sites = [x.strip() for x in os.environ.get('KS_PYTHON_SITES', '').split(':') if x]
+    sites = [x.strip() for x in os.environ.get('PYTHONSITES', '').split(':') if x]
     sites.append(our_sys_path)
     for site in sites:
         try:

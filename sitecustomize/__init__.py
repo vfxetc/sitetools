@@ -3,7 +3,7 @@
 Variables previously frozen via :func:`sitecustomize.environ.freeze` will be
 restored.
 
-All directories listed within :envvar:`KS_PYTHON_SITES` and the directory
+All directories listed within :envvar:`PYTHONSITES` and the directory
 from which this was imported from will be added to :data:`sys.path`, in a
 similar manner as site-packages via :func:`python:site.addsitedir`. We
 reimplemented that functionality because:
