@@ -1,4 +1,4 @@
-"""Setup Python for Western X.
+"""Common tasks for setting up a Python execution environment.
 
 Variables previously frozen via :func:`sitecustomize.environ.freeze` will be
 restored.
@@ -11,9 +11,6 @@ reimplemented that functionality because:
 1. Our NFS was throwing some wierd errors with :func:`site.addsitedir` (due to ``._*`` files).
 2. We added ``__site__.pth`` files to packages to allow them to describe themselves
    and keep their ``.pth`` file in their own repository.
-
-Also monkey-patch :func:`os.chflags` to not error on our NFS (by ignoring the
-error). This was fixed in Python2.7, but we don't have that luxury.
 
 .. warning:: Be extremely careful while modifying this package and test it very
     thoroughly, since being able to locate any other packages is dependant on it
@@ -44,17 +41,10 @@ def import_and_call(mod_name, func_name, *args, **kwargs):
         warnings.warn('Error while calling %s.%s\n%s' % (mod_name, func_name, traceback.format_exc()))
 
 
-import_and_call('sitecustomize.logs', '_setup')
 import_and_call('sitecustomize.sites', '_setup')
 import_and_call('sitecustomize.environ', '_setup')
-import_and_call('sitecustomize.monkeypatch', '_setup')
 
 
-# Setup Maya's loggers. Ideally this would be in a Maya-specific location,
-# but I can't really think of anywhere appropriate.
-import_and_call('sitecustomize.logs', '_setup_maya')
-
-
-# Temporary import until I can adjust entrypoints.
+# The public API.
 from sitecustomize.sites import add_site_dir
 
