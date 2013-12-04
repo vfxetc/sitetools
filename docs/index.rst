@@ -1,7 +1,7 @@
 .. _index:
 
-Western X Python Environment
-============================
+sizecutomize
+============
 
 Overview
 --------
@@ -17,4 +17,3 @@ Contents
 
     sites
     environ
-    logging

@@ -1,44 +1,5 @@
 
-- include monkeypatch from metatools so that we don't need to depend on it?
+- PYTHONVENVS should be converted into PYTHONSITES
 
-- docs:
-    - stub
-    - environ freezing
-    - dependency on metatools
-    - monkey patches in use
-    - logging setup
-    - extensions to site-packages
-    - utils.verbose
-
-- Implement __pycache__ in metatools and sitecustomize
-  see: http://www.python.org/dev/peps/pep-3147
-
-- support platform-specific Python modules
-
-    .site.pth (same as __site__.pth): build/lib.{platform_specifier}
-        This would require a string.format shim for 2.5.
-    .site.yml:
-        path:
-            - build/lib.{platform_specifier}
-        after_deploy:
-            - make build-platforms
-            - python -m sitecustomize.precompile .
-
-    make build-platforms: Qube job to build on all versions on all platforms
-
-    python setup.py build --build-lib=. to tell it where to build to
-    
-    plat_name = get_platform()
-    platform_specifier = "%s-%s" % (plat_name, sys.version[0:3])
-
-    This string comes out the same on both types of farm machine, are they
-    compatible? If they aren't, we can construct a more specific string from
-    platform.platform.
-
-    Is there a way that we could have extensions auto-compiled at import time?!
-
-    Could use `python setup.py bdist_egg` to create complete binary eggs!
-
-    Build a deployment/compiling stage for all the tools, so that we can swap
-    out the whole tool quickly via a sym-link. This would need an entire
-    deployed copy per developer, though...
+- scan entry_points (or other package metadata) looking for functions to
+  call during Python startup

@@ -28,7 +28,7 @@ if True or read_the_docs:
     init_dir = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
     imp.load_module(
         'sitecustomize',
-        open(os.path.join(init_dir, '__init__.py')),
+        open(os.path.join(init_dir, 'sitecustomize', '__init__.py')),
         init_dir,
         ('.py', 'r', imp.PY_SOURCE | imp.PKG_DIRECTORY),
     )
@@ -72,8 +72,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Keystone Base'
-copyright = u'2012, Western Post'
+project = u'sitecusomize'
+copyright = u'2013, Mike Boers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -121,22 +121,12 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ---------------------------------------------------
 
-local_theme_path = os.path.abspath('../../docs/_themes/westernx')
-if os.path.exists(local_theme_path):
-    sys.path.append(local_theme_path)
-    html_theme_path = [local_theme_path]
-    html_theme = 'westernx'
-    html_theme_options = {
-        'index_logo': None,
-    }
-else:
-    html_theme = 'default'
+#html_theme = 'default'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
-    'index_logo': None,
 }
 
 
@@ -149,7 +139,7 @@ html_theme_options = {
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = '_static/westernx_small_logo.png'
+html_logo = ''
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -223,10 +213,7 @@ latex_elements = {
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
-latex_documents = [
-  ('index', 'KeystoneBase.tex', u'Keystone Base Documentation',
-   u'Western Post', 'manual'),
-]
+latex_documents = []
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
@@ -253,10 +240,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    ('index', 'keystonebase', u'Keystone Base Documentation',
-     [u'Western Post'], 1)
-]
+man_pages = []
 
 # If true, show URL addresses after external links.
 #man_show_urls = False
@@ -267,11 +251,7 @@ man_pages = [
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
-texinfo_documents = [
-  ('index', 'KeystoneBase', u'Keystone Base Documentation',
-   u'Western Post', 'KeystoneBase', 'One line description of project.',
-   'Miscellaneous'),
-]
+texinfo_documents = []
 
 # Documents to append as an appendix to all manuals.
 #texinfo_appendices = []
@@ -284,17 +264,7 @@ texinfo_documents = [
 
 todo_include_todos = True
 
-extlinks = {
-    'ticket': ('https://keystone.shotgunstudio.com/detail/Ticket/%s', 'ticket '),
-}
-
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     'python': ('http://docs.python.org/release/2.7.4/', None),
-    'keybase': (os.path.abspath(os.path.join(__file__, '../../../key_base/docs/_build/html')), None),
-    'main': (os.path.abspath(os.path.join(__file__, '../../../docs/_build/html')), None),
 }
-
-
-
-
