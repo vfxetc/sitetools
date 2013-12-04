@@ -48,3 +48,5 @@ import_and_call('sitecustomize.environ', '_setup')
 # The public API.
 from sitecustomize.sites import add_site_dir
 
+
+import_and_call('sitecustomize.hooks', '_setup')
