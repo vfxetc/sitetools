@@ -2,7 +2,7 @@
 Python's `stdlib logging <http://docs.python.org/2/library/logging.html>`_ is
 setup as part of the sitecustomize initialization sequence. By default,
 anything ``INFO`` and above will be logged to a location as determined by
-:envvar:`KS_PYTHON_LOG_FILE`.
+:envvar:`PYTHONLOGFILE`.
 
 
 Debugging via Logging
@@ -26,7 +26,7 @@ You can then get those debug logs dumped to your terminal by using the :ref:`dev
 Environment Variables
 ---------------------
 
-.. envvar:: KS_PYTHON_LOG_FILE
+.. envvar:: PYTHONLOGFILE
 
     A format string for determining where to save ``logging`` logs. Defaults
     (in the WesternX environment) to::
@@ -36,18 +36,18 @@ Environment Variables
     Keys available include: ``date``, ``time``, ``login``, ``ip``, and ``pid``.
 
 
-.. envvar:: KS_PYTHON_LOG_LEVELS
+.. envvar:: PYTHONLOGLEVELS
 
     A space-or-comma-delimited list of logger names and minimum record levels. E.g.::
 
-        $ export KS_PYTHON_LOG_LEVELS=:WARNING,mayatools:DEBUG
+        $ export PYTHONLOGLEVELS=:WARNING,mayatools:DEBUG
 
     would set the general logging threshold to :const:`logging.WARNING`, but anything
     within ``mayatools`` to :const:`logging.DEBUG`.
 
     In an emergency this can effectively disable the logging system by setting::
 
-        $ export KS_PYTHON_LOG_LEVELS=:100
+        $ export PYTHONLOGLEVELS=:100
 
     which is too high for any (built-in) log levels.
 
@@ -235,7 +235,7 @@ def main():
         logging.getLogger(name).setLevel(level)
     
     # Setup specially requested levels, usually from `dev --log name:LEVEL`
-    requested_levels = os.environ.get('KS_PYTHON_LOG_LEVELS') or os.environ.get('KS_LOG_LEVELS')
+    requested_levels = os.environ.get('PYTHONLOGLEVELS') or os.environ.get('KS_LOG_LEVELS')
     if requested_levels:
         requested_levels = [x.strip() for x in re.split(r'[\s,]+', requested_levels)]
         requested_levels = [x for x in requested_levels if x]
@@ -262,7 +262,7 @@ def main():
             log.log(5, '%s set to %s', name, level)
 
     # Setup logging to a file, if requested.
-    pattern = os.environ.get('KS_PYTHON_LOG_FILE')
+    pattern = os.environ.get('PYTHONLOGFILE')
     if pattern:
         handler = PatternedFileHandler(pattern, delay=True)
         handler.setLevel(logging.INFO)
