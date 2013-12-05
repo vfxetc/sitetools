@@ -1,7 +1,7 @@
 .. _sites:
 
-Site-Packages
-=============
+Pseudo Site-Packages
+====================
 
-.. automodule:: sitecustomize.sites
+.. automodule:: sitetools.sites
     :members:

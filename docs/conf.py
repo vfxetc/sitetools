@@ -13,31 +13,6 @@
 
 import sys, os
 
-# Detect if we are on Read the Docs
-read_the_docs = os.environ.get('READTHEDOCS', None) == 'True'
-
-# Force our sitecustomize to be the one that gets imported.
-if True or read_the_docs:
-
-    for name in sys.modules.keys():
-      if name.split('.')[-1] == 'sitecustomize':
-        del sys.modules[name]
-
-    print 'Loading sitecustomize...'
-    import imp
-    init_dir = os.path.abspath(os.path.join(__file__, os.path.pardir, os.path.pardir))
-    imp.load_module(
-        'sitecustomize',
-        open(os.path.join(init_dir, 'sitecustomize', '__init__.py')),
-        init_dir,
-        ('.py', 'r', imp.PY_SOURCE | imp.PKG_DIRECTORY),
-    )
-
-    print 'Importing sitecustomize...'
-    import sitecustomize
-    print 'Found', sitecustomize, 'with', sitecustomize.__path__
-
-
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -72,7 +47,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'sitecusomize'
+project = u'sitetools'
 copyright = u'2013, Mike Boers'
 
 # The version info for the project you're documenting, acts as replacement for

@@ -1,42 +1,23 @@
 """
 
-Since WesternX's code is released my deploying it to a shared network location,
-we cannot use the standard Python package installtion systems that currently
-exist. Ergo, this package.
+This module is mostly a re-implementation of :func:`python:site.addsitedir`,
+with slight modifications:
 
-All of our in-house tools are located within a
-directory located via :envvar:`KS_TOOLS`, which must be on the
-:envvar:`python:PYTHONPATH`, and defaults to::
+1. We add the given directory to the :data:`python:sys.path`.
+2. We search for ``*.pth`` files within that directory and process them
+   (nearly) the same as :func:`python:site.addsitedir` does.
+3. We look for ``__site__.pth`` files within each top-level directory and
+   process them as well. This allows for a tool to self-describe its
+   paths and contain that metadata within its own repository, and therefore
+   be usable without being "installed".
 
-    /Volumes/VFX/production/key_tools
+All new entries are added just before this ``sitetools`` on the path. This allows
+packages found in the new locations to be prioritized above system packages.
 
-Since :envvar:`KS_TOOLS` must be on the :envvar:`python:PYTHONPATH`, any pure
-Python packages are importable from that location without any further
-configuration. However, some of the tools are not so simple. For
-example, the ``key_base`` houses multiple
-subdirectories that must be on Python's :data:`python:sys.path` (for
-backwards compatibility). Those subdirectories include (but are not
-limited to)::
+We reimplemented this because:
 
-    ./python
-    ./3d/maya/python
-    ./2d/nuke/python
-    ./systems/python
-
-These are added by Python at runtime via this package, which adds each directory within
-:envvar:`PYTHONSITES` (and the directory from which
-``sitecustomize`` was imported) as pseudo site-
-packages. First, it adds the directory to the :data:`python:sys.path`.
-Then it searches for ``*.pth`` files within that directory and processes
-them the same as :func:`python:site.addsitedir` does. However, it also
-looks for ``__site__.pth`` files within each top-level directory and
-process them as well. This allows for a tool to self-describe its paths
-and contain that metadata within its own repository. `Take a look at the
-key_base/__site__.pth <../../../../key_base/__site__.pth>`_.
-
-.. note:: This is very similar to Python Eggs which also describe
-    themselves, but does not require an installation step to generate the
-    ``*.pth`` file.
+1. Our NFS was throwing some wierd errors with :func:`site.addsitedir` (due to ``._*`` files).
+2. We wanted self-describing repositories.
 
 
 Environment Variables
@@ -45,23 +26,7 @@ Environment Variables
 .. envvar:: PYTHONSITES
 
     A colon-delimited list of directories which will be added as pseudo
-    site-packages (see :ref:`python_setup`) before :envvar:`KS_TOOLS`. Note
-    that :envvar:`KS_TOOLS` will always be added after these directories so
-    that your local tools need not include every tool since the production
-    deployment will be used as a fallback by default. We tend not to actually
-    modify this by hand and instead use a command-wrapper to set it.
-
-.. envvar:: KS_TOOLS
-
-    The directory from which the in-house tools are loaded. It is currently in use to:
-    
-    - setup Python in the :ref:`shell environment <shell_setup>`;
-    - identify where to :ref:`deploy_tools`;
-    - identify where to :ref:`build_docs`.
-    
-    If ``KS_TOOLS`` is set before the main environment script is sourced it will result in everything being loaded from that location, and will require a complete set of tools, particularly :ref:`sitecustomize <sitecustomize:index>` in order to bootstrap the rest of the :ref:`Python environment <python_setup>`.
-
-    .. warning:: This is a master override and is usually overkill. Unless you completely understand how the Python path is augmented this will likely result in very puzzling errors.
+    site-packages (see :ref:`python_setup`).
 
 
 API Reference

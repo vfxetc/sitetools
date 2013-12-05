@@ -21,6 +21,8 @@ def import_and_call(mod_name, func_name, *args, **kwargs):
         warnings.warn('Error while calling %s.%s\n%s' % (mod_name, func_name, traceback.format_exc()))
 
 
+# We don't need to guard against this only running once since it is a module
+# and should only eval once.
 import_and_call('sitetools.sites', '_setup')
 import_and_call('sitetools.environ', '_setup')
 import_and_call('sitetools.hooks', '_setup')

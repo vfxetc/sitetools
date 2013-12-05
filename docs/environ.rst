@@ -3,5 +3,5 @@
 Environment Variables
 =====================
 
-.. automodule:: sitecustomize.environ
+.. automodule:: sitetools.environ
     :members:
