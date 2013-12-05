@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Executes the given command with a modified path and KS_PYTHON_SITES.
+"""Executes the given command with a modified path and PYTHONSITES.
 
 E.g.:
 
@@ -7,7 +7,7 @@ E.g.:
     dev maya2011 -> Runs Maya2011 but with the local key_tools.
 
 This still relies upon whichever sitecustomize that is within the PYTHONPATH to
-bootstrap the Python sys.path with KS_PYTHON_SITES. This script still depends
+bootstrap the Python sys.path with PYTHONSITES. This script still depends
 upon the PATH to contain directories within the production tools in order to
 hook them.
 
@@ -48,11 +48,6 @@ optparser.add_option(
     '--list-sites',
     dest="list_sites", action="store_true", default=False,
     help="list the development environments we would have used (colon delimited)"
-)
-optparser.add_option(
-    '-f', '--full',
-    dest="full", action="store_true", default=False,
-    help="completely override the standard environment, i.e. don't inherit from $KS_TOOLS",
 )
 optparser.add_option(
     '-b', '--bootstrap',
@@ -137,50 +132,35 @@ if opts.list_sites:
     exit(0)
 
 
-ks_tools = os.path.abspath(os.environ['KS_TOOLS'])
-
-
 if not opts.no_site:
 
     # Construct the new PATH by copying entries in the current PATH which match
     # KS_TOOLS, and adding coresponding entries to all of the sites.
     # TODO: Derive this better.
-    path = []
-    for dir_name in os.environ['PATH'].split(':'):
-        dir_name = os.path.abspath(dir_name)
-        
-        # If this directory is within the main tools, add a site specific version
-        # if it exists there too.
-        if dir_name.startswith(ks_tools):
-            relative_dir = os.path.relpath(dir_name, ks_tools)
-            for site in new_sites:
-                site_specific_dir = os.path.join(site, relative_dir)
-                if os.path.exists(site_specific_dir):
-                    path.append(site_specific_dir)
-        
-        path.append(dir_name)
-        
-    environ['PATH'] = ':'.join(path)
+    ks_tools = os.environ.get("KS_TOOLS")
+    if ks_tools:
+
+        path = []
+        for dir_name in os.environ['PATH'].split(':'):
+            dir_name = os.path.abspath(dir_name)
+            
+            # If this directory is within the main tools, add a site specific version
+            # if it exists there too.
+            if dir_name.startswith(ks_tools):
+                relative_dir = os.path.relpath(dir_name, ks_tools)
+                for site in new_sites:
+                    site_specific_dir = os.path.join(site, relative_dir)
+                    if os.path.exists(site_specific_dir):
+                        path.append(site_specific_dir)
+            
+            path.append(dir_name)
+            
+        environ['PATH'] = ':'.join(path)
 
     # Append on the existing sites, and make everything absolute.
-    if not opts.full:
-        sites = new_sites + os.environ.get('KS_PYTHON_SITES', '').split(':')
-        sites = [os.path.abspath(x.strip()) for x in sites if x.strip()]
-        environ['KS_PYTHON_SITES'] = ':'.join(sites)
-
-
-# Replace all $KS_TOOLS with our new site.
-if opts.full:
-    new_tools = new_sites[0]
-    for k, v in environ.items():
-        environ[k] = v.replace(ks_tools, new_tools)
-    for k, v in os.environ.iteritems():
-        new_v = v.replace(ks_tools, new_tools)
-        if new_v != v:
-            environ.setdefault(k, new_v)
-    
-    # Make sure that `sitecustomize` is still on the path.
-    environ['PYTHONPATH'] += ':' + ks_tools
+    sites = new_sites + os.environ.get('PYTHONSITES', '').split(':')
+    sites = [x.strip() for x in sites if x.strip()]
+    environ['PYTHONSITES'] = ':'.join(sites)
 
 
 # Print out the changes to the environment.
@@ -196,8 +176,6 @@ if not args:
 
 
 # Execute the requested command.
-# This will look for the command in the PATH within the given environment.
 os.execvpe(args[0], args, environ)
     
 # DOES NOT CONTINUE.
-
