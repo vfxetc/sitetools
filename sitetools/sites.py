@@ -196,8 +196,9 @@ def _setup():
         os.path.pardir,
     ))
 
-    sites = [x.strip() for x in os.environ.get('PYTHONSITES', '').split(':') if x]
-    sites.append(our_sys_path)
+    sites = [x.strip() for x in os.environ.get('PYTHONSITES', '').split(':')]
+    sites = [x for x in sites if x]
+
     for site in sites:
         try:
             add_site_dir(site, before=our_sys_path)
