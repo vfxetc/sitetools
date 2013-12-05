@@ -3,7 +3,8 @@
 sitetools
 =========
 
-Tools for setting up a Python execution environment at runtime.
+Tools for setting up a Python execution environment at runtime. Generally useful
+for extending one virtualenv_ with another.
 
 This will take a few automatic actions at Python startup (in order):
 
@@ -29,7 +30,15 @@ This will take a few automatic actions at Python startup (in order):
     )
 
 
+.. note::
+    This package **MUST** be installed in the Python environment that is
+    being initialized. If this is installed in the system site-packages it
+    will not work in a virtualenv_.
+
+
 .. _entry points: http://pythonhosted.org/setuptools/setuptools.html#dynamic-discovery-of-services-and-plugins
+.. _virtualenv: https://pypi.python.org/pypi/virtualenv
+
 
 Contents
 --------
