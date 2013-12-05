@@ -3,15 +3,15 @@ from distutils.core import setup
 
 setup(
     
-    name='sitecustomize',
+    name='sitetools',
     version='0.1.0',
-    description='Customize your Python startup sequence.',
-    url='http://github.com/mikeboers/sitecustomize',
+    description='Tools for customizing your Python startup sequence.',
+    url='http://github.com/mikeboers/sitetools',
     
-    packages=['sitecustomize'],
+    packages=['sitetools'],
     
     author='Mike Boers',
-    author_email='sitecustomize@mikeboers.com',
+    author_email='sitetools@mikeboers.com',
     license='BSD-3',
 
 )
