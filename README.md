@@ -11,5 +11,5 @@ This package gives you some tools for setting up your Python environment at runt
 
 [pylib-logging]: http://docs.python.org/2/library/logging.html
 [pylib-addsitedir]: http://docs.python.org/2/library/site.html#site.addsitedir
-[rtd]: https://sitecustomize.readthedocs.org/en/latest/
+[rtd]: https://sitetools.readthedocs.org/en/latest/
 [ep]: https://pythonhosted.org/setuptools/setuptools.html#dynamic-discovery-of-services-and-plugins
