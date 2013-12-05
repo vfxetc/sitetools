@@ -16,6 +16,8 @@ hook them.
 
 import os
 import optparse
+import pwd
+import re
 import sys
 
 
@@ -99,22 +101,34 @@ if opts.log_levels:
     environ['KS_LOG_LEVELS'] = ','.join(x.strip() for x in opts.log_levels)
 
 
+
+site_patterns = os.environ.get('KS_DEV_SITES', '~/fi/dev:~/dev').split(':')
+
 # Determine which new sites to add.
 if opts.sites:
     new_sites = opts.sites[:]
+
 else:
+
+    def expanduser(path, user=None):
+        """Roughly the same as os.path.expanduser, but you can pass a default user."""
+
+        def _replace(m):
+            m_user = m.group(1) or user
+            return pwd.getpwnam(m_user).pw_dir if m_user else pwd.getpwuid(os.getuid()).pw_dir
+
+        return re.sub(r'~(\w*)', _replace, path)
+
     # Autodetect local sites.
-    users = opts.users or [""]
-    new_sites = [os.path.expanduser('~%s/%s' % (user, name)) for user in users for name in ('key_tools', 'dev', 'key_local_tool_development')]
-    new_sites = [x for x in new_sites if os.path.exists(x)]
+    users = opts.users or [None]
+    new_sites = [expanduser(pattern, user).strip() for user in users for pattern in site_patterns]
+    new_sites = [x for x in new_sites if x and os.path.exists(x)]
 
 
 # Make sure that a development environment exists.
 if not new_sites and not opts.no_site:
     print 'Could not find suitable development directory. Please make one of:'
-    print '\t~/key_tools'
-    print '\t~/dev'
-    print '\t~/key_local_tool_development'
+    print '\n'.join('\t' + x for x in site_patterns)
     exit(1)
 
 
