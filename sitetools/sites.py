@@ -96,18 +96,20 @@ class Site(object):
         return str(self) == str(other)
 
 
-
-class _SysPathInserter(object):
+class SysPathInserter(object):
     """Class to insert a series of paths into :data:`sys.path` incrementally."""
     
-    def __init__(self, before=None):
-        
-        # Determine where we want to insert new paths.
-        try:
-            self.insert_at = sys.path.index(before) if before else None
-        except ValueError:
-            self.insert_at = None
-            warnings.warn('%r was not found on sys.path' % before)
+    def __init__(self, index=None):
+
+        self.index = None
+
+        if isinstance(index, int):
+            self.index = index
+        elif isinstance(index, basestring):
+            try:
+                self.index = sys.path.index(index)
+            except ValueError:
+                warnings.warn('%r was not found on sys.path' % index)
         
     def add(self, path):
         """Add the given path to the decided place in sys.path"""
@@ -122,11 +124,10 @@ class _SysPathInserter(object):
         # It must not already be in sys.path.
         if path in sys.path:
             return
-        
-        # Put it in the right place.
-        if self.insert_at is not None:
-            sys.path.insert(self.insert_at, path)
-            self.insert_at += 1
+
+        if self.index is not None:
+            sys.path.insert(self.index, path)
+            self.index += 1
         else:
             sys.path.append(path)
 
@@ -167,7 +168,35 @@ def _process_pth(path, base, file_name):
         path.add(os.path.join(base, line))
 
 
-def add_site_dir(dir_name, before=None):
+def add_site_list(dir_list):
+    """Add a list of pseudo site-packages to :data:`python:sys.path`.
+
+    This centers the list on ``sys.path`` around the current environment.
+    I.e. if this environment is in the list, then directories before it in the
+    list will be prepended to ``sys.path``, and directories after it will
+    be appended to ``sys.path``.
+
+    """
+    
+    our_site_packages = os.path.abspath(os.path.join(sys.prefix, site_package_postfix))
+    dir_list = [os.path.abspath(x) for x in dir_list]
+
+    prepend = SysPathInserter(0)
+    append = SysPathInserter()
+
+    try:
+        our_index = dir_list.index(our_site_packages)
+    except ValueError:
+        our_index = None
+
+    for i, dir_name in enumerate(dir_list):
+        if our_index is None or i < our_index:
+            add_site_dir(dir_name, _path=prepend)
+        else:
+            add_site_dir(dir_name, _path=append)
+
+
+def add_site_dir(dir_name, before=None, _path=None):
     """Add a pseudo site-packages directory to :data:`python:sys.path`.
     
     :param str dir_name: The directory to add.
@@ -185,7 +214,7 @@ def add_site_dir(dir_name, before=None):
     if not os.path.exists(dir_name):
         return
     
-    path = _SysPathInserter(before=before)
+    path = _path or SysPathInserter(index=before)
     path.add(dir_name)
 
     # Process *.pth files in a manner similar to site.addsitedir(...).
@@ -205,13 +234,6 @@ def add_site_dir(dir_name, before=None):
 
 
 def _setup():
-    
-    # Where do we want to start inserting directories into sys.path? Just before
-    # this module, of course. So determine where we were imported from.
-    our_sys_path = os.path.abspath(os.path.join(__file__,
-        os.path.pardir,
-        os.path.pardir,
-    ))
 
     sites = []
     for site_path in get_environ_list('KS_SITES'):
@@ -219,8 +241,10 @@ def _setup():
             site = Site(site_path)
         except (OSError, ValueError) as e:
             warnings.warn('Invalid site: %s' % site_path)
-        try:
-            add_site_dir(site.python_path, before=our_sys_path)
-        except Exception, why:
-            warnings.warn('Error while adding site-package %r: %r' % (site.python_path, why))
+        sites.append(site.python_path)
+
+    try:
+        add_site_list(sites)
+    except Exception, e:
+        warnings.warn('Error while adding sites %r: %r' % (sites, e))
 

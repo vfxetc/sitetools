@@ -7,10 +7,9 @@
   removed:
     import os; print 'HI from', fullname
 
-- Document sitecutsomize hook.
+- Document sitecustomize hook.
 - Detect if sitecustomize hook with fail.
   - Offer to install sitetools or "infect" to new venv with a *.pth file
     which will accomplish the same as the sitecustomize hook.
 
-- If sys.prefix is in $KS_SITES, then everything before it will be added
-  to the front of sys.path, and everything behind it to the end of sys.path.
+- Document centering of KS_SITES around current environment.
