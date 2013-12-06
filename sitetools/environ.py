@@ -6,7 +6,7 @@ variables to flow freely. There are, however, a few circumstances in which we
 need to inhibit this flow.
 
 Maya and Nuke, for example, add to the :envvar:`python:PYTHONHOME`, and our
-launchers add to :envvar:`PYTHONSITES` (for PyQt, etc.). These changes must
+launchers add to :envvar:`KS_PYTHON_SITES` (for PyQt, etc.). These changes must
 not propigate to other processes.
 
 These tools allow us to manage those variables which should not propigate.
@@ -15,7 +15,7 @@ Upon Python startup, these tools will reset any variables which have been flagge
 
 Actual Variables
 ----------------
-.. envvar:: PYTHONENVIRONDIFF
+.. envvar:: KS_ENVIRON_DIFF
 
     A set of variables to update (or delete) from Python's :data:`os.environ`
     at startup. This is used to force variables that are nessesary for startup
@@ -39,7 +39,7 @@ import json
 
 log = logging.getLogger(__name__)
 
-VARIABLE_NAME = 'PYTHONENVIRONDIFF'
+VARIABLE_NAME = 'KS_ENVIRON_DIFF'
 
 _dumps = json.dumps
 _loads = json.loads

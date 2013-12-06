@@ -11,7 +11,7 @@ This will take a few automatic actions at Python startup (in order):
 1. Variables previously frozen via :func:`sitetools.environ.freeze` will be
    restored.
 
-2. All directories listed within :envvar:`PYTHONSITES` will be added to
+2. All directories listed within :envvar:`KS_PYTHON_SITES` will be added to
    :data:`sys.path`, in a similar manner as site-packages (via
    :func:`sitetools.sites.add_site_dir`).
 

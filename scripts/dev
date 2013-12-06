@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Executes the given command with a modified path and PYTHONSITES.
+"""Executes the given command with a modified path and KS_PYTHON_SITES.
 
 E.g.:
 
@@ -7,7 +7,7 @@ E.g.:
     dev maya2011 -> Runs Maya2011 but with the local key_tools.
 
 This still relies upon whichever sitecustomize that is within the PYTHONPATH to
-bootstrap the Python sys.path with PYTHONSITES. This script still depends
+bootstrap the Python sys.path with KS_PYTHON_SITES. This script still depends
 upon the PATH to contain directories within the production tools in order to
 hook them.
 
@@ -158,9 +158,9 @@ if not opts.no_site:
         environ['PATH'] = ':'.join(path)
 
     # Append on the existing sites, and make everything absolute.
-    sites = new_sites + os.environ.get('PYTHONSITES', '').split(':')
+    sites = new_sites + os.environ.get('KS_PYTHON_SITES', '').split(':')
     sites = [x.strip() for x in sites if x.strip()]
-    environ['PYTHONSITES'] = ':'.join(sites)
+    environ['KS_PYTHON_SITES'] = ':'.join(sites)
 
 
 # Print out the changes to the environment.

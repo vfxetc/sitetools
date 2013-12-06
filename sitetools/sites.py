@@ -23,7 +23,7 @@ We reimplemented this because:
 Environment Variables
 ---------------------
 
-.. envvar:: PYTHONSITES
+.. envvar:: KS_PYTHON_SITES
 
     A colon-delimited list of directories which will be added as pseudo
     site-packages (see :ref:`python_setup`).
@@ -161,7 +161,7 @@ def _setup():
         os.path.pardir,
     ))
 
-    sites = [x.strip() for x in os.environ.get('PYTHONSITES', '').split(':')]
+    sites = [x.strip() for x in os.environ.get('KS_PYTHON_SITES', '').split(':')]
     sites = [x for x in sites if x]
 
     for site in sites:

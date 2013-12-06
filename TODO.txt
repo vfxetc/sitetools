@@ -1,5 +1,5 @@
 
-- PYTHONVENVS should be converted into PYTHONSITES
+- KS_PYTHON_VENVS should be converted into KS_PYTHON_SITES
 
 - scan entry_points (or other package metadata) looking for functions to
   call during Python startup
