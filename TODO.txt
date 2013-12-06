@@ -2,3 +2,16 @@
 - Add a hook to 000_sitetools_hook.pth to track the changes to the path
   that setuptools-installed packages make. Then we can make sure to insert
   everything from KS_PYTHON_SITES and KS_PYTHON_VENVS before that.
+
+- How can `dev` extend $PATH based off of the new venvs, when that will
+  trigger a execution in a new venv, and we will lose the packages from
+  the old one?
+
+    - Idea 1: KS_PYTHON_VENVS contains the old and new. If it turns out
+      that sys.prefix is in there, then everything before it will be added
+      to the front of sys.path, and everything behind it to the end of sys.path.
+
+      This will not work since sitetools will not exist in the new environment.
+      Perhaps, we could "infect" all of the venvs to import sitetools?! That
+      does not sound very appealing...
+

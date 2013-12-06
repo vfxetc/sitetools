@@ -14,11 +14,29 @@ hook them.
 """
 
 
+import itertools
 import os
 import optparse
 import pwd
 import re
 import sys
+
+
+def unique(input_):
+    seen = set()
+    output = []
+    for x in input_:
+        if x not in seen:
+            seen.add(x)
+            output.append(x)
+    return output
+
+def expand_venv(base):
+    return os.path.join(base, 'lib', 'python%x.%x' % sys.version_info[:2], 'site-packages')
+
+def environ_list(name):
+    existing = os.environ.get(name)
+    return existing.split(':') if existing is not None else []
 
 
 optparser = optparse.OptionParser(
@@ -36,8 +54,18 @@ optparser.add_option(
 )
 optparser.add_option(
     '-s', '--site',
-    dest="sites", action="append",
+    dest="sites", action="append", default=[],
     help="directory to use as the development $KS_TOOLS",
+)
+optparser.add_option(
+    '--venv',
+    dest='venvs', action='append', default=[],
+    help='virtual environment to inherit packages from',
+)
+optparser.add_option(
+    '-b', '--base',
+    dest='bases', action='append', default=[],
+    help='directories that if on the $PATH should be transformed into new sites',
 )
 optparser.add_option(
     '-u', '--user',
@@ -50,7 +78,7 @@ optparser.add_option(
     help="list the development environments we would have used (colon delimited)"
 )
 optparser.add_option(
-    '-b', '--bootstrap',
+    '--bootstrap',
     dest="bootstrap", action="store_true", default=False,
     help="bootstrap a previous environment from $KS_DEV_ARGS",
 )
@@ -98,12 +126,15 @@ if opts.log_levels:
 
 
 site_patterns = os.environ.get('KS_DEV_SITES', '~/fi/dev:~/dev').split(':')
+venv_patterns = os.environ.get('KS_DEV_VENVS', '~/fi/dev/venv:~/dev/venv').split(':')
 
 # Determine which new sites to add.
-if opts.sites:
-    new_sites = opts.sites[:]
 
-else:
+new_sites = opts.sites[:]
+new_venvs = opts.venvs[:]
+
+# Go exploring if there wasn't anything explicit.
+if not new_sites and not new_venvs:
 
     def expanduser(path, user=None):
         """Roughly the same as os.path.expanduser, but you can pass a default user."""
@@ -116,51 +147,69 @@ else:
 
     # Autodetect local sites.
     users = opts.users or [None]
+
     new_sites = [expanduser(pattern, user).strip() for user in users for pattern in site_patterns]
     new_sites = [x for x in new_sites if x and os.path.exists(x)]
 
+    new_venvs = [expanduser(pattern, user).strip() for user in users for pattern in venv_patterns]
+    new_venvs = [x for x in new_venvs if os.path.exists(expand_venv(x))]
+
 
 # Make sure that a development environment exists.
-if not new_sites and not opts.no_site:
+if not new_sites and not new_venvs and not opts.no_site:
     print 'Could not find suitable development directory. Please make one of:'
-    print '\n'.join('\t' + x for x in site_patterns)
+    print '\n'.join('\t' + x for x in sorted(site_patterns + venv_patterns))
     exit(1)
 
 
+new_sites = [os.path.abspath(x) for x in new_sites]
+new_venvs = [os.path.abspath(x) for x in new_venvs]
+
+
 if opts.list_sites:
-    print ':'.join(new_sites)
+    print ':'.join(new_sites + [expand_venv(x) for x in new_venvs])
     exit(0)
 
 
 if not opts.no_site:
 
-    # Construct the new PATH by copying entries in the current PATH which match
-    # KS_TOOLS, and adding coresponding entries to all of the sites.
-    # TODO: Derive this better.
-    ks_tools = os.environ.get("KS_TOOLS")
-    if ks_tools:
+    # Construct the new $PATH by comparing items in the existing $PATH
+    # to the potential bases that we are extending from. If they come from
+    # one of the bases, then try grafting it onto each of the new sites
 
-        path = []
-        for dir_name in os.environ['PATH'].split(':'):
-            dir_name = os.path.abspath(dir_name)
-            
+    path_bases = opts.bases[:] or [
+        os.environ.get('KS_TOOLS'),
+        os.environ.get('VIRTUAL_ENV'),
+        sys.prefix,
+        sys.exec_prefix,
+    ]
+    path_bases = [os.path.abspath(x) for x in path_bases if x is not None]
+    path_bases = unique(path_bases)
+
+    new_path = []
+
+    for dir_name in os.environ['PATH'].split(':'):
+        dir_path = os.path.abspath(dir_name)
+        
+        for base in path_bases:
+
             # If this directory is within the main tools, add a site specific version
             # if it exists there too.
-            if dir_name.startswith(ks_tools):
-                relative_dir = os.path.relpath(dir_name, ks_tools)
+            if dir_path.startswith(base):
+                relative_dir = os.path.relpath(dir_path, base)
                 for site in new_sites:
                     site_specific_dir = os.path.join(site, relative_dir)
                     if os.path.exists(site_specific_dir):
-                        path.append(site_specific_dir)
-            
-            path.append(dir_name)
-            
-        environ['PATH'] = ':'.join(path)
+                        new_path.append(site_specific_dir)
+        
+        new_path.append(dir_name)
+    
+    if ':'.join(new_path) != os.environ['PATH']:
+        environ['PATH'] = ':'.join(unique(new_path))
 
     # Append on the existing sites, and make everything absolute.
-    sites = new_sites + os.environ.get('KS_PYTHON_SITES', '').split(':')
-    sites = [x.strip() for x in sites if x.strip()]
-    environ['KS_PYTHON_SITES'] = ':'.join(sites)
+    environ['KS_PYTHON_SITES'] = ':'.join(new_sites + environ_list('KS_PYTHON_SITES'))
+    environ['KS_PYTHON_VENVS'] = ':'.join(new_venvs + environ_list('KS_PYTHON_VENVS'))
 
 
 # Print out the changes to the environment.
