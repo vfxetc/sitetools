@@ -8,7 +8,7 @@ for extending one virtualenv_ with another.
 
 This will take a few automatic actions at Python startup (in order):
 
-1. All directories listed within :envvar:`KS_PYTHON_SITES` will be added to
+1. All directories listed within :envvar:`KS_SITES` will be added to
    :data:`sys.path`, in a similar manner as site-packages (via
    :func:`sitetools.sites.add_site_dir`).
 

@@ -23,15 +23,11 @@ We reimplemented this because:
 Environment Variables
 ---------------------
 
-.. envvar:: KS_PYTHON_SITES
+.. envvar:: KS_SITES
 
-    A colon-delimited list of directories which will be added as pseudo
-    site-packages (see :ref:`python_setup`).
-
-.. envvar:: KS_PYTHON_VENVS
-
-    A colon-delimited list of virtual environments whose ``site-packages``
-    will be added as pseudo site-packages.
+    A colon-delimited list of sites to add as pseudo site-packages (see :ref:`python_setup`).
+    If a directory, it will be processed as if it were a ``site-packages`` directory.
+    If a file named ``python``, it will search for the corresponding ``site-packages`` directory.
 
 
 API Reference
@@ -46,6 +42,8 @@ import os
 import stat
 import sys
 import warnings
+
+from .utils import get_environ_list
 
 
 log = logging.getLogger(__name__)
@@ -215,22 +213,15 @@ def _setup():
         os.path.pardir,
     ))
 
-    sites = [x.strip() for x in os.environ.get('KS_PYTHON_SITES', '').split(':')]
-    sites = [x for x in sites if x]
-
-    for venv_root in os.environ.get('KS_PYTHON_VENVS', '').split(':'):
-        venv_root = venv_root.strip()
-        if venv_root:
-            sites.append(os.path.join(
-                venv_root,
-                'lib',
-                'python%d.%d' % sys.version_info[:2],
-                'site-packages',
-            ))
-
-    for site in sites:
+    sites = []
+    for site_path in get_environ_list('KS_SITES'):
         try:
-            add_site_dir(site, before=our_sys_path)
+            site = Site(site_path)
+        except (OSError, ValueError) as e:
+            warnings.warn('Invalid site: %s' % site_path)
+        print site, site.python_path
+        try:
+            add_site_dir(site.python_path, before=our_sys_path)
         except Exception, why:
-            warnings.warn('Error while adding site-package %r: %r' % (site, why))
+            warnings.warn('Error while adding site-package %r: %r' % (site.python_path, why))
 

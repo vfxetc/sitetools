@@ -6,7 +6,7 @@ variables to flow freely. There are, however, a few circumstances in which we
 need to inhibit this flow.
 
 Maya and Nuke, for example, add to the :envvar:`python:PYTHONHOME`, and our
-launchers add to :envvar:`KS_PYTHON_SITES` (for PyQt, etc.). These changes must
+launchers add to :envvar:`KS_SITES` (for PyQt, etc.). These changes must
 not propigate to other processes.
 
 These tools allow us to manage those variables which should not propigate.

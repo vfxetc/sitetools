@@ -1,7 +1,7 @@
 
 - Add a hook to 000_sitetools_hook.pth to track the changes to the path
   that setuptools-installed packages make. Then we can make sure to insert
-  everything from KS_PYTHON_SITES and KS_PYTHON_VENVS before that.
+  everything from KS_SITES and KS_PYTHON_VENVS before that.
 
 - If the hook fails it should identify the file it is in so that it can be
   removed:
@@ -10,6 +10,18 @@
 - How can `dev` extend $PATH based off of the new venvs, when that will
   trigger a execution in a new venv, and we will lose the packages from
   the old one?
+
+  KS_SITES refers to sites and venvs, old and new.
+
+    - directories are treated as site-packages
+    - executable files are treated as the python executable, and search for
+      their prefix
+
+    - Site class implements __hash__ and __eq__ such that unique_list will
+      work on it.
+        - __str__
+        - .bin
+        - .packages
 
   Idea 1: KS_PYTHON_VENVS contains the old and new. If it turns out
   that sys.prefix is in there, then everything before it will be added
