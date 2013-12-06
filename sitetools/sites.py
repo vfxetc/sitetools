@@ -219,7 +219,6 @@ def _setup():
             site = Site(site_path)
         except (OSError, ValueError) as e:
             warnings.warn('Invalid site: %s' % site_path)
-        print site, site.python_path
         try:
             add_site_dir(site.python_path, before=our_sys_path)
         except Exception, why:

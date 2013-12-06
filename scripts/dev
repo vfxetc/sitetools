@@ -113,7 +113,14 @@ site_patterns = os.environ.get('KS_DEV_SITES', '~/fi/dev:~/fi/dev/venv/bin/pytho
 
 # Determine which new sites to add, and go exploring if there wasn't
 # anything explicit.
-new_sites = opts.sites[:]
+new_sites = []
+for site_path in opts.sites:
+    try:
+        new_sites.append(Site(site_path))
+    except Exception as e:
+        print e
+        exit(1)
+
 if not new_sites:
     for pattern in site_patterns:
         for user in opts.users or [None]:
@@ -145,7 +152,14 @@ new_sites = unique_sites(new_sites)
 
 if not opts.no_site:
 
-    # Construct the new $PATH by comparing items in the existing $PATH
+    new_path = []
+
+    # Add bins from any venv sites.
+    for site in new_sites:
+        if site.bin_path is not None:
+            new_path.append(site.bin_path)
+
+    # Add to the new $PATH by comparing items in the existing $PATH
     # to the potential bases that we are extending from. If they come from
     # one of the bases, then try grafting it onto each of the new sites
 
@@ -157,8 +171,6 @@ if not opts.no_site:
     ]
     path_bases = [os.path.abspath(x) for x in path_bases if x is not None]
     path_bases = unique_list(path_bases)
-
-    new_path = []
 
     for dir_name in os.environ['PATH'].split(':'):
         dir_path = os.path.abspath(dir_name)
@@ -181,6 +193,15 @@ if not opts.no_site:
 
     # Append on the existing sites, and make everything absolute.
     environ['KS_SITES'] = ':'.join([str(s) for s in new_sites] + get_environ_list('KS_SITES'))
+
+    # Hook for the next venv.
+    py_path = get_environ_list('PYTHON_PATH')
+    py_path = [x for x in py_path if not (
+        os.path.basename(x) == 'venv_hook' and
+        os.path.exists(os.path.join(x, 'sitecustomize.py'))
+    )]
+    py_path.insert(0, os.path.abspath(os.path.join(__file__, '..', '..', 'venv_hook')))
+    environ['PYTHONPATH'] = ':'.join(py_path)
 
 
 # Print out the changes to the environment.
