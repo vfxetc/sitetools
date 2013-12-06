@@ -3,15 +3,68 @@
   that setuptools-installed packages make. Then we can make sure to insert
   everything from KS_PYTHON_SITES and KS_PYTHON_VENVS before that.
 
+- If the hook fails it should identify the file it is in so that it can be
+  removed:
+    import os; print 'HI from', fullname
+
 - How can `dev` extend $PATH based off of the new venvs, when that will
   trigger a execution in a new venv, and we will lose the packages from
   the old one?
 
-    - Idea 1: KS_PYTHON_VENVS contains the old and new. If it turns out
-      that sys.prefix is in there, then everything before it will be added
-      to the front of sys.path, and everything behind it to the end of sys.path.
+  Idea 1: KS_PYTHON_VENVS contains the old and new. If it turns out
+  that sys.prefix is in there, then everything before it will be added
+  to the front of sys.path, and everything behind it to the end of sys.path.
 
-      This will not work since sitetools will not exist in the new environment.
-      Perhaps, we could "infect" all of the venvs to import sitetools?! That
-      does not sound very appealing...
+    - Either use this magic, or have a KS_NEW_VENVS and KS_OLD_VENVS.
+        - add_site_path(path, action='prepend' or 'append')
+
+  This will not work since sitetools will not exist in the new environment.
+  Perhaps, we could "infect" all of the venvs to import sitetools?! That
+  does not sound very appealing...
+
+    import sys; exec repr('''
+
+    try:
+        import sitetools._startup
+    except ImportError:
+        pass
+
+    path = '/path/to/sitetools'
+    if not path in sys.path:
+        sys.path.append(path)
+
+    try:
+        import sitetools._startup
+    except ImportError:
+        pass
+    except Exception as e:
+        import warnings
+        warnings.warn('Error while calling sitetools._hook: %r' % e)
+
+
+  `dev` could detect when there will be a venv shift and ask if it
+  may infect the new site-packages, install sitetools from scratch, or
+  do nothing
+
+  Idea 2: It could be a requirement that each venv must have sitetools
+  installed, or be infected with it. A KS_SITETOOLS_VERSION could be
+  set so that the new host could deal with a change.
+
+  Idea 3: Add to the PYTHONPATH such that a sitecustomize.py will be
+  called that will add sitetools and install it, and then continue to
+  look for more sitecustomizes! This requires that there be no sitecustomize
+  installed via a .pth file in that environment, but this is also able to
+  be checked for.
+
+  Idea 4: Try to hook via sitecustomize. Look for which python will run.
+  If it is a different python, check its site-packages for a sitetools and
+  sitecustomize (by parsing the .pth files). If we find no sitetools AND
+  we find a sitecustomize then warn the user and fail.
+
+  Can the payload be as simple as installing a `sitetools_startup.py`
+  and a `zzz_sitetools_hook.pth` which imports it? It should be able to since
+  the directory that the .pth files are in is added to sys.path before they
+  are executed.
+
+
 
