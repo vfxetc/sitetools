@@ -43,11 +43,60 @@ from __future__ import absolute_import
 
 import logging
 import os
+import stat
 import sys
 import warnings
 
 
 log = logging.getLogger(__name__)
+
+
+# TODO: Derive this for more platforms.
+site_package_postfix = os.path.join('lib', 'python%d.%d' % sys.version_info[:2], 'site-packages')
+
+
+class Site(object):
+
+    def __init__(self, path):
+        # We will let the OSError escape if it doesn't exist.
+
+        self.path = os.path.normpath(path)
+        self.stat = os.stat(path)
+
+        if stat.S_ISDIR(self.stat.st_mode):
+            self.is_venv = False
+
+        elif os.path.basename(self.path) in ('python', 'python%s.%s' % sys.version_info[:2]):
+            prefix = os.path.abspath(self.path)
+            while prefix and prefix != '/':
+                prefix = os.path.dirname(prefix)
+                if os.path.exists(os.path.join(prefix, site_package_postfix)):
+                    self.is_venv = True
+                    self.prefix = prefix
+                    break
+            else:
+                raise ValueError('file is not within a virtualenv')
+
+        else:
+            raise ValueError('expected directory or Python executable')
+
+    @property
+    def bin_path(self):
+        return os.path.join(self.prefix, 'bin') if self.is_venv else None
+
+    @property
+    def python_path(self):
+        return os.path.join(self.prefix, site_package_postfix) if self.is_venv else self.path
+
+    def __str__(self):
+        return self.path
+
+    def __hash__(self):
+        return hash(self.path)
+
+    def __eq__(self, other):
+        return str(self) == str(other)
+
 
 
 class _SysPathInserter(object):
