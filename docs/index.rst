@@ -8,14 +8,17 @@ for extending one virtualenv_ with another.
 
 This will take a few automatic actions at Python startup (in order):
 
-1. Variables previously frozen via :func:`sitetools.environ.freeze` will be
-   restored.
-
-2. All directories listed within :envvar:`KS_PYTHON_SITES` will be added to
+1. All directories listed within :envvar:`KS_PYTHON_SITES` will be added to
    :data:`sys.path`, in a similar manner as site-packages (via
    :func:`sitetools.sites.add_site_dir`).
 
-3. Any ``sitecustomize`` `entry points`_ will be called::
+2. All virtual environments listed within :envvar:`KS_PYTHON_VENVS` will have their
+   ``lib/pythonX.Y/site-packages`` directory added to :data:`sys.path` as above.
+
+3. Variables previously frozen via :func:`sitetools.environ.freeze` will be
+   restored.
+
+4. Any ``sitecustomize`` `entry points`_ will be called::
 
     from setuptools import setup
     setup(

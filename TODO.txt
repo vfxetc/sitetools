@@ -1,5 +1,4 @@
 
-- KS_PYTHON_VENVS should be converted into KS_PYTHON_SITES
-
-- scan entry_points (or other package metadata) looking for functions to
-  call during Python startup
+- Add a hook to 000_sitetools_hook.pth to track the changes to the path
+  that setuptools-installed packages make. Then we can make sure to insert
+  everything from KS_PYTHON_SITES and KS_PYTHON_VENVS before that.

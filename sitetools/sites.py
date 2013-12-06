@@ -28,6 +28,11 @@ Environment Variables
     A colon-delimited list of directories which will be added as pseudo
     site-packages (see :ref:`python_setup`).
 
+.. envvar:: KS_PYTHON_VENVS
+
+    A colon-delimited list of virtual environments whose ``site-packages``
+    will be added as pseudo site-packages.
+
 
 API Reference
 -------------
@@ -163,6 +168,16 @@ def _setup():
 
     sites = [x.strip() for x in os.environ.get('KS_PYTHON_SITES', '').split(':')]
     sites = [x for x in sites if x]
+
+    for venv_root in os.environ.get('KS_PYTHON_VENVS', '').split(':'):
+        venv_root = venv_root.strip()
+        if venv_root:
+            sites.append(os.path.join(
+                venv_root,
+                'lib',
+                'python%d.%d' % sys.version_info[:2],
+                'site-packages',
+            ))
 
     for site in sites:
         try:
