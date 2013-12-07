@@ -11,13 +11,13 @@ with slight modifications:
    paths and contain that metadata within its own repository, and therefore
    be usable without being "installed".
 
-All new entries are added just before this ``sitetools`` on the path. This allows
-packages found in the new locations to be prioritized above system packages.
+
 
 We reimplemented this because:
 
 1. Our NFS was throwing some wierd errors with :func:`site.addsitedir` (due to ``._*`` files).
 2. We wanted self-describing repositories.
+3. We wanted virtualenvs to be able to inherit from each other.
 
 
 Environment Variables
@@ -26,8 +26,15 @@ Environment Variables
 .. envvar:: KS_SITES
 
     A colon-delimited list of sites to add as pseudo site-packages (see :ref:`python_setup`).
-    If a directory, it will be processed as if it were a ``site-packages`` directory.
-    If a file named ``python``, it will search for the corresponding ``site-packages`` directory.
+
+    If the "site" is a directory, it will be processed as if it were a ``site-packages`` directory.
+
+    If the "site" is a file named ``python``, it will search for the corresponding ``site-packages`` directory.
+
+    If the current environment (equivalent to :data:`python:sys.executable`) is
+    found in this list then it will be used as a centering point for the
+    other sites listed. Anything before the current environment will be prepended
+    to ``sys.path``, and anything after the current environment will be appended.
 
 
 API Reference
