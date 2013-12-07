@@ -109,7 +109,7 @@ if opts.log_levels:
     environ['KS_LOG_LEVELS'] = ','.join(x.strip() for x in opts.log_levels)
 
 
-site_patterns = os.environ.get('KS_DEV_SITES', '~/fi/dev:~/fi/dev/venv/bin/python:~/dev:~/dev/venv/bin/python').split(':')
+site_patterns = os.environ.get('KS_DEV_SITES', '~/dev:~/dev/venv/bin/python').split(':')
 
 # Determine which new sites to add, and go exploring if there wasn't
 # anything explicit.
