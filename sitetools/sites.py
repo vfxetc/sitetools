@@ -148,6 +148,10 @@ def _process_pth(path, base, file_name):
     
     pth_path = os.path.abspath(os.path.join(base, file_name))
     
+    # This is for `exec` below, as some packages (e.g. virtualenvwrapper)
+    # assume that `site.addpackage` is running them.
+    sitedir = os.path.dirname(base)
+
     # Only process this once.
     if pth_path in _processed_pths:
         return
@@ -169,6 +173,7 @@ def _process_pth(path, base, file_name):
             if file_name == 'easy-install.pth' and 'sys.__plen' in line:
                 continue
 
+            log.log(1, line)
             exec line
             continue
         
