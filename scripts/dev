@@ -129,7 +129,8 @@ if not new_sites:
                 site = Site(site_path)
             except (OSError, ValueError) as e:
                 pass
-            new_sites.append(site)
+            else:
+                new_sites.append(site)
 
 
 # Make sure that a development environment exists.
