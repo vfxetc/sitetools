@@ -173,7 +173,7 @@ def _process_pth(path, base, file_name):
             if file_name == 'easy-install.pth' and 'sys.__plen' in line:
                 continue
 
-            log.log(1, line)
+            log.log(1, '_process_pth exec %s' % line)
             exec line
             continue
         
@@ -220,7 +220,7 @@ def add_site_dir(dir_name, before=None, _path=None):
     top-level directories.
     
     """
-    
+
     log.log(5, 'add_site_dir(%r, before=%r)', dir_name, before)
     
     # Don't do anything if the folder doesn't exist.
