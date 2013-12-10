@@ -48,6 +48,7 @@ import logging
 import os
 import stat
 import sys
+import traceback
 import warnings
 
 from .utils import get_environ_list
@@ -252,6 +253,6 @@ def _setup():
 
     try:
         add_site_list(sites)
-    except Exception, e:
-        warnings.warn('Error while adding sites %r: %r' % (sites, e))
+    except Exception:
+        warnings.warn('Error while adding sites %s:\n%s' % (sites, traceback.format_exc().rstrip()))
 
