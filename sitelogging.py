@@ -75,7 +75,7 @@ TRACE = 5
 
 
 # Our log formats.
-BASE_FORMAT = '%(asctime)-15s %(levelname)s %(name)s: %(message)s'
+BASE_FORMAT = '%(asctime)-15s %(levelname)8s %(name)s: %(message)s'
 MAYA_FORMAT = '%(name)s: %(message)s'
 FULL_FORMAT = '%(asctime)-15s %(login)s@%(ip)s:%(pid)d %(levelname)s %(name)s: %(message)s'
 
