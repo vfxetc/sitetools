@@ -158,7 +158,13 @@ def _process_pth(path, base, file_name):
     _processed_pths.add(pth_path)    
     
     log.log(1, '_process_pth(..., %r, %r)', base, file_name)
-        
+    
+    try:
+        fh = open(pth_path)
+    except IOError as e:
+        log.log(1, '_process_path IOError %s' % e)
+        return
+    
     for line in open(pth_path):
         line = line.strip()
         
