@@ -259,7 +259,7 @@ def _setup():
         try:
             site = Site(site_path)
         except (OSError, ValueError) as e:
-            warnings.warn('Invalid site: %s' % site_path)
+            log.log(5, 'invalid site: %s' % site_path)
         sites.append(site.python_path)
 
     try:
