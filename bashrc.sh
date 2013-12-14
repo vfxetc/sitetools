@@ -9,7 +9,7 @@ function _dev_completions {
     case "$pword" in
     
         -u | --user )
-            COMPREPLY=$(compgen -u -- "$cword")
+            COMPREPLY=( $(compgen -u -- "$cword") )
             ;;
         
     esac
