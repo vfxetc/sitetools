@@ -20,7 +20,7 @@ import optparse
 import pwd
 import re
 import sys
-
+from subprocess import call
 
 from sitetools.utils import unique_list, get_environ_list, expand_user
 from sitetools.sites import Site
@@ -135,9 +135,21 @@ if not new_sites:
 
 # Make sure that a development environment exists.
 if not new_sites and not opts.no_site:
-    print 'Could not find suitable development directory. Please make one of:'
-    print '\n'.join('\t' + x for x in sorted(site_patterns))
-    exit(1)
+    print 'Could not find existing development environment.'
+    for path in site_patterns:
+        if path.endswith('/bin/python'):
+            break
+    else:
+        print 'Please create one of:'
+        print '\n'.join('\t' + path for path in site_patterns)
+        exit(1)
+    venv = path[:-len('/bin/python')]
+    print 'Would you like to create %s? (Y/n):' % venv,
+    res = raw_input()
+    if res not in ('', 'Y', 'y'):
+        exit(1)
+    call(['virtualenv', '--no-site-packages', os.path.expanduser(venv)])
+    new_sites.append(Site(os.path.expanduser(path)))
 
 
 if opts.list_sites:
