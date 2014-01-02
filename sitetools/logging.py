@@ -195,7 +195,7 @@ def _patch_file_handler():
         logging.FileHandler.__init__ = new
 
 
-def main():
+def _setup():
 
     # Fix some bugs in the stdlib.
     _patch_file_handler()
@@ -230,6 +230,8 @@ def main():
     handler.setFormatter(logging.Formatter(BASE_FORMAT))
     root.addHandler(handler)
 
+    log.log(BLATHER, 'root logging setup')
+
     # Set the levels on a few (verbose) loggers.
     for name, level in (
         ('pymel', logging.WARNING),
@@ -262,7 +264,7 @@ def main():
 
             logger = logging.getLogger(name)
             logger.setLevel(level)
-            log.log(5, '%s set to %s', name, level)
+            log.log(TRACE, '%s set to %s', name, level)
 
     # Setup logging to a file, if requested.
     pattern = os.environ.get('PYTHONLOGFILE')

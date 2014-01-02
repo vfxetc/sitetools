@@ -43,3 +43,4 @@ Contents
     dev
     sites
     environ
+    logging
