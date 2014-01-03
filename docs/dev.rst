@@ -6,7 +6,7 @@ The `dev` Command Wrapper
 
 A ``dev`` command exists that will run any other command from within an automatically constructed development environment. Effectively, any Python imports will use your local packages, and any executables will be sourced from your local paths. Any packages or executables not found locally will fall back on the production tools.
 
-It does this by searching a number of standard locations for where users tend to locate the development versions of the tools, and appends those to :envvar:`KS_SITES`. It also looks across the standard ``PATH`` for directories that fall within the production environment, and prepends the development versions of those paths.
+It does this by searching for development tools in :envvar:`KS_DEV_SITES`, and appends those that exist to :envvar:`KS_SITES`. It also looks across the standard ``PATH`` for directories that fall within the production environment, and prepends the development versions of those paths.
 
 Lets look at some examples. I can bring up a Python shell in the development environment::
 

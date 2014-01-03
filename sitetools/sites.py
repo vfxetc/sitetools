@@ -37,6 +37,15 @@ Environment Variables
     to ``sys.path``, and anything after the current environment will be appended.
 
 
+.. envvar:: KS_DEV_SITES
+
+    A colon-delimited list of sites to look for when using the
+    :ref:`dev command<dev_command>`. Any ``~`` found may refer to any requested
+    user's home.
+
+    If unset, defaults to ``~/dev:~/dev/venv/bin/python``.
+
+
 API Reference
 -------------
 
