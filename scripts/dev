@@ -22,6 +22,7 @@ import re
 import sys
 from subprocess import call
 
+import sitetools
 from sitetools.utils import unique_list, get_environ_list, expand_user
 from sitetools.sites import Site
 
@@ -213,7 +214,7 @@ if not opts.no_site:
         os.path.basename(x) == 'venv_hook' and
         os.path.exists(os.path.join(x, 'sitecustomize.py'))
     )]
-    py_path.insert(0, os.path.abspath(os.path.join(__file__, '..', '..', 'venv_hook')))
+    py_path.insert(0, os.path.abspath(os.path.join(sitetools.__file__, '..', 'venv_hook')))
     environ['PYTHONPATH'] = ':'.join(py_path)
 
 
