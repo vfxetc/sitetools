@@ -104,6 +104,13 @@ class Site(object):
     def bin_path(self):
         return os.path.join(self.prefix, 'bin') if self.is_venv else None
 
+    def which(self, name):
+        bin_path = self.bin_path
+        if bin_path is not None:
+            path = os.path.abspath(os.path.join(bin_path, name))
+            if os.path.exists(path):
+                return path
+    
     @property
     def python_path(self):
         return os.path.join(self.prefix, site_package_postfix) if self.is_venv else self.path
