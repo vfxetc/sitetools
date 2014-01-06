@@ -22,7 +22,10 @@ try:
     except ImportError:
         
         # Pull in the sitetools that goes with this sitecustomize.
-        sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        sys.path.append(os.path.abspath(os.path.join(
+            __file__,
+            '..', '..', '..'
+        )))
 
         # Let this ImportError raise.
         import sitetools._startup
