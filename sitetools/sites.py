@@ -61,7 +61,7 @@ import sys
 import traceback
 import warnings
 
-from .utils import get_environ_list
+from sitetools.utils import expand_user, get_environ_list
 
 
 log = logging.getLogger(__name__)
@@ -116,6 +116,32 @@ class Site(object):
 
     def __eq__(self, other):
         return str(self) == str(other)
+
+
+def get_dev_site_patterns():
+    return get_environ_list('KS_DEV_SITES', ['~/dev/venv/bin/python', '~/dev'])
+
+
+def find_dev_sites(patterns=None, users=None):
+
+    if patterns is None:
+        patterns = get_dev_site_patterns()
+    if users is None:
+        users = [None]
+
+    found_sites = []
+    for pattern in patterns:
+        for user in users:
+            
+            site_path = expand_user(pattern, user)
+            try:
+                site = Site(site_path)
+            except ValueError:
+                pass
+            else:
+                found_sites.append(site)
+
+    return found_sites
 
 
 class SysPathInserter(object):

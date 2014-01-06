@@ -42,12 +42,17 @@ def unique_list(input_, key=lambda x:x):
     return output
 
 
-def get_environ_list(name):
+def get_environ_list(name, default=None):
     """Return the split colon-delimited list from an environment variable.
 
     Returns an empty list if the variable didn't exist.
 
     """
     packed = os.environ.get(name)
-    return packed.split(':') if packed is not None else []
+    if packed is not None:
+        return packed.split(':')
+    elif default is not None:
+        return default
+    else:
+        return []
 

@@ -24,7 +24,7 @@ from subprocess import call
 
 import sitetools
 from sitetools.utils import unique_list, get_environ_list, expand_user
-from sitetools.sites import Site
+from sitetools.sites import Site, find_dev_sites, get_dev_site_patterns
 
 
 unique_sites = lambda ss: unique_list(ss, key=lambda s: s.python_path)
@@ -110,8 +110,6 @@ if opts.log_levels:
     environ['KS_LOG_LEVELS'] = ','.join(x.strip() for x in opts.log_levels)
 
 
-site_patterns = os.environ.get('KS_DEV_SITES', '~/dev/venv/bin/python:~/dev').split(':')
-
 # Determine which new sites to add, and go exploring if there wasn't
 # anything explicit.
 new_sites = []
@@ -123,31 +121,30 @@ for site_path in opts.sites:
         exit(1)
 
 if not new_sites:
-    for pattern in site_patterns:
-        for user in opts.users or [None]:
-            site_path = expand_user(pattern, user)
-            try:
-                site = Site(site_path)
-            except ValueError:
-                pass
-            else:
-                new_sites.append(site)
+    new_sites = find_dev_sites(users=opts.users or None)
 
 
-# Make sure that a development environment exists.
-if not new_sites and not opts.no_site:
-    print 'Could not find existing development environment.'
-    for path in site_patterns:
+# Make sure that one of the new sites is a virtualenv.
+if not any(s.is_venv for s in new_sites) and not opts.no_site:
+
+    print >> sys.stderr, 'Could not find existing development virtualenv.'
+
+    # Try to find one that *should* resolve to a Python environment as
+    # opposed to a directory.
+    for path in get_dev_site_patterns():
         if path.endswith('/bin/python'):
             break
     else:
-        print 'Please create one of:'
-        print '\n'.join('\t' + path for path in site_patterns)
+        print >> sys.stderr, 'Additionally, there are no virtualenv patterns in $KS_DEV_SITES.'
+        print >> sys.stderr, 'Add an entry to $KS_DEV_SITES which ends with "/bin/python", e.g.:'
+        print >> sys.stderr, 'export KS_DEV_SITES="~/dev/venv/bin/python:~/dev"'
         exit(1)
+
     venv = path[:-len('/bin/python')]
-    print 'Would you like to create %s? (Y/n):' % venv,
+
+    print >> sys.stderr, 'Would you like to create %s? (Y/n): ' % venv,
     res = raw_input()
-    if res not in ('', 'Y', 'y'):
+    if res not in ('', 'Y', 'y', 'yes'):
         exit(1)
     call(['virtualenv', '--no-site-packages', os.path.expanduser(venv)])
     new_sites.append(Site(os.path.expanduser(path)))
