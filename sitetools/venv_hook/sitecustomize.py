@@ -28,7 +28,7 @@ try:
         import sitetools._startup
 
 except Exception as e:
-    warnings.warn("Error while importing sitetools._startup: %e" % e)
+    warnings.warn("Error while importing sitetools._startup: %s" % e)
 
 
 # Be a good citizen and find the next sitecustomize module.
