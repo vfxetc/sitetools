@@ -128,7 +128,7 @@ if not new_sites:
             site_path = expand_user(pattern, user)
             try:
                 site = Site(site_path)
-            except (OSError, ValueError) as e:
+            except ValueError:
                 pass
             else:
                 new_sites.append(site)

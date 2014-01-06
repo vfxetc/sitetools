@@ -166,7 +166,7 @@ class PatternedFileHandler(logging.FileHandler):
         try:
             os.makedirs(dir_path)
         except OSError as e:
-            if e.errno != 17: # File exists.
+            if e.errno != errno.EEXIST: # File exists.
                 warnings.warn('Error while creating log directory: %r' % e)
                 return _NullFile()
         finally:

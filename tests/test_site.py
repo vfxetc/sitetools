@@ -30,7 +30,7 @@ class TestSite(TestCase):
         )), site.python_path)
 
     def test_non_existant(self):
-        self.assertRaises(OSError, Site, 'does-not-exist')
+        self.assertRaises(ValueError, Site, 'does-not-exist')
 
     def test_not_python_executable(self):
         self.assertRaises(ValueError, Site, os.path.join(sys.prefix, 'bin', 'pip'))

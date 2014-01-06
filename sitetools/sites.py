@@ -53,6 +53,7 @@ API Reference
 
 from __future__ import absolute_import
 
+import errno
 import logging
 import os
 import stat
@@ -73,10 +74,14 @@ site_package_postfix = os.path.join('lib', 'python%d.%d' % sys.version_info[:2],
 class Site(object):
 
     def __init__(self, path):
-        # We will let the OSError escape if it doesn't exist.
 
-        self.path = os.path.normpath(path)
-        self.stat = os.stat(path)
+        try:
+            self.path = os.path.normpath(path)
+            self.stat = os.stat(path)
+        except OSError as e:
+            if e.errno != errno.ENOENT:
+                raise
+            raise ValueError('site does not exist')
 
         if stat.S_ISDIR(self.stat.st_mode):
             self.is_venv = False
@@ -267,8 +272,8 @@ def _setup():
     for site_path in get_environ_list('KS_SITES'):
         try:
             site = Site(site_path)
-        except (OSError, ValueError) as e:
-            log.log(5, 'invalid site: %s' % site_path)
+        except ValueError as e:
+            log.log(5, 'invalid site %s: %s' % (site_path, e.args[0]))
         sites.append(site.python_path)
 
     try:
