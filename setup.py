@@ -59,6 +59,8 @@ setup(
     author_email='sitetools@mikeboers.com',
     license='BSD-3',
 
+    include_package_data=True,
+    
     scripts=['scripts/dev'],
     
     cmdclass={
