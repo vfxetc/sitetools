@@ -39,6 +39,10 @@ optparser.add_option(
     help="print the changes to the environment",
 )
 optparser.add_option(
+    '--create', action="store_true",
+    help="create the dev venv if it doesn't exist",
+)
+optparser.add_option(
     '-n', '--no-site',
     dest='no_site', action='store_true', default=False,
     help='do not modify the python path',
@@ -142,10 +146,12 @@ if not any(s.is_venv for s in new_sites) and not opts.no_site:
 
     venv = path[:-len('/bin/python')]
 
-    print >> sys.stderr, 'Would you like to create %s? (Y/n): ' % venv,
-    res = raw_input()
-    if res not in ('', 'Y', 'y', 'yes'):
-        exit(1)
+    if not opts.create:
+        print >> sys.stderr, 'Would you like to create %s? (Y/n): ' % venv,
+        res = raw_input()
+        if res not in ('', 'Y', 'y', 'yes'):
+            exit(1)
+    
     call(['virtualenv', '--no-site-packages', os.path.expanduser(venv)])
     new_sites.append(Site(os.path.expanduser(path)))
 
