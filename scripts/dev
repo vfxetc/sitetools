@@ -233,6 +233,11 @@ if not args:
     exit(1)
 
 
+if args[0] in ('bash', 'sh'):
+    print >> sys.stderr, '`dev %s` does not work as expected; use `dev-shell`' % args[0]
+    exit(1)
+
+
 # Execute the requested command.
 os.execvpe(args[0], args, environ)
     
