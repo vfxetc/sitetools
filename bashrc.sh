@@ -16,3 +16,8 @@ function _dev_completions {
 }
 complete -cf -F _dev_completions dev
 
+
+function dev-shell {
+    eval "$(dev --export "$@")"
+}
+
