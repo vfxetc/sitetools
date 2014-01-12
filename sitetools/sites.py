@@ -307,7 +307,8 @@ def _setup():
             site = Site(site_path)
         except ValueError as e:
             log.log(5, 'invalid site %s: %s' % (site_path, e.args[0]))
-        sites.append(site.python_path)
+        else:
+            sites.append(site.python_path)
 
     try:
         add_site_list(sites)
