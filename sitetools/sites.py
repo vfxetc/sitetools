@@ -60,6 +60,7 @@ import stat
 import sys
 import traceback
 import warnings
+from distutils.util import get_platform
 
 from sitetools.utils import expand_user, get_environ_list
 
@@ -69,6 +70,7 @@ log = logging.getLogger(__name__)
 
 # TODO: Derive this for more platforms.
 site_package_postfix = os.path.join('lib', 'python%d.%d' % sys.version_info[:2], 'site-packages')
+platform_spec = '%s-%s' % (get_platform(), sys.version[:3])
 
 
 class Site(object):
@@ -234,6 +236,7 @@ def _process_pth(path, base, file_name):
             continue
         
         # Add it.
+        line = line.replace('{platform_spec}', platform_spec)
         path.add(os.path.join(base, line))
 
 
