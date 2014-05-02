@@ -86,7 +86,10 @@ class Site(object):
         if stat.S_ISDIR(self.stat.st_mode):
             self.is_venv = False
 
-        elif os.path.basename(self.path) in ('python', 'python%s.%s' % sys.version_info[:2]):
+        # Discover the prefix in much the same way that Python does itself.
+        # This test for the python executable isn't very robust, but it catches
+        # the normal cases on Linux and OS X (even when in a Framework).
+        elif os.path.basename(self.path).lower() in ('python', 'python%s.%s' % sys.version_info[:2]):
             prefix = os.path.abspath(self.path)
             while prefix and prefix != '/':
                 prefix = os.path.dirname(prefix)
