@@ -171,14 +171,16 @@ if not any(s.is_venv for s in new_sites) and not opts.no_site:
 
     else:
         venv = venv_options[0]
+
+    venv_dir = os.path.abspath(os.path.join(os.path.expanduser(venv), '..', '..'))
     
     try:
-        check_call(['virtualenv', os.path.expanduser(venv)])
+        check_call(['virtualenv', venv_dir])
     except CalledProcessError:
         print >> sys.stderr, 'virtualenv creation was not successful'
         exit(1)
 
-    new_sites.append(Site(os.path.expanduser(path)))
+    new_sites.append(Site(os.path.expanduser(venv)))
 
 
 if opts.list_sites:
