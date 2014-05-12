@@ -69,7 +69,9 @@ log = logging.getLogger(__name__)
 
 
 # TODO: Derive this for more platforms.
-site_package_postfix = os.path.join('lib', 'python%d.%d' % sys.version_info[:2], 'site-packages')
+lib_postfix = os.path.join('lib', 'python%d.%d' % sys.version_info[:2])
+site_postfix = os.path.join(lib_postfix, 'site.py')
+site_package_postfix = os.path.join(lib_postfix, 'site-packages')
 platform_spec = '%s-%s' % (get_platform(), sys.version[:3])
 
 
@@ -95,7 +97,10 @@ class Site(object):
             prefix = os.path.abspath(self.path)
             while prefix and prefix != '/':
                 prefix = os.path.dirname(prefix)
-                if os.path.exists(os.path.join(prefix, site_package_postfix)):
+                if (
+                    os.path.exists(os.path.join(prefix, site_package_postfix)) or
+                    os.path.exists(os.path.join(prefix, site_postfix))
+                ):
                     self.is_venv = True
                     self.prefix = prefix
                     break
