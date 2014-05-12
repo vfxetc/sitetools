@@ -61,7 +61,11 @@ setup(
 
     include_package_data=True,
     
-    scripts=['scripts/dev'],
+    scripts=[
+        'scripts/dev',
+        'scripts/dev-install',
+        'scripts/dev-status',
+    ],
     
     cmdclass={
         'install_lib': install_lib,
