@@ -9,6 +9,7 @@ from sitetools.sites import Site, find_dev_sites
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--list', action='store_true')
 parser.add_argument('--all', action='store_true')
 parser.add_argument('name', nargs='*')
 args = parser.parse_args()
@@ -45,13 +46,18 @@ def get_dev_site(create=True):
         return dev_venvs[0]
 
 
+tools = list(iter_available_packages())
+name_to_tool = dict((tool['name'], tool) for tool in tools)
+
+if args.list:
+    for tool in tools:
+        print '{name:22s} {repo}'.format(**tool)
+    exit(0)
+
+
 dev_site = get_dev_site()
 tool_dir = os.path.dirname(os.path.abspath(dev_site.prefix))
 pip = dev_site.which('pip')
-
-
-tools = list(iter_available_packages())
-name_to_tool = dict((tool['name'], tool) for tool in tools)
 
 names = [tool['name'] for tool in tools] if args.all else args.name
 
