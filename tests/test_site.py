@@ -33,7 +33,13 @@ class TestSite(TestCase):
         self.assertRaises(ValueError, Site, 'does-not-exist')
 
     def test_not_python_executable(self):
-        self.assertRaises(ValueError, Site, os.path.join(sys.prefix, 'bin', 'pip'))
+        for name in '2to3', 'idle', 'pydoc':
+            path = os.path.join(sys.prefix, 'bin', name)
+            if os.path.exists(path):
+                self.assertRaises(ValueError, Site, path)
+                break
+        else:
+            self.fail('no executables to test in %s/bin' % sys.prefix)
 
     def test_not_in_venv(self):
         self.assertRaises(ValueError, Site, '/etc/hosts')
