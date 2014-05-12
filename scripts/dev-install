@@ -4,7 +4,7 @@ import argparse
 import os
 from subprocess import call, check_call
 
-import fiadmin.tools
+from sitetools.repos import iter_available_packages
 from sitetools.sites import Site, find_dev_sites
 
 
@@ -50,10 +50,14 @@ tool_dir = os.path.dirname(os.path.abspath(dev_site.prefix))
 pip = dev_site.which('pip')
 
 
-names = [tool[0] for tool in fiadmin.tools.TOOLS] if args.all else args.name
+tools = list(iter_available_packages())
+name_to_tool = dict((tool['name'], tool) for tool in tools)
+
+names = [tool['name'] for tool in tools] if args.all else args.name
+
 for name in names:
 
-    repo = dict(fiadmin.tools.TOOLS).get(name)
+    repo = name_to_tool.get(name, {}).get('repo')
     if not repo:
         print 'Tool %r is unknown.' % name
         exit(1)
@@ -63,6 +67,9 @@ for name in names:
     if not os.path.exists(tool_path):
         check_call(['git', 'clone', repo, name], cwd=tool_dir)
 
+    if os.path.exists(os.path.join(tool_path, 'Makefile')):
+        check_call(['make'], cwd=tool_path)
+    
     if os.path.exists(os.path.join(tool_path, 'setup.py')):
         check_call([pip, 'install', '-e', tool_path])
 

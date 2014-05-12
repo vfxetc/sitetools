@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!python
 """Executes the given command with a modified path and KS_SITES.
 
 E.g.:
