@@ -150,11 +150,11 @@ if not any(s.is_venv for s in new_sites) and not opts.no_site:
 
     if not opts.create:
 
-        print >> sys.stderr, 'Which would you like to create? (1):'
+        print >> sys.stderr, 'A virtualenv can be created in these locations:'
         for i, path in enumerate(venv_options):
             print >> sys.stderr, '    %d) %s' % (i + 1, path)
-        print >> sys.stderr, '       Ctrl-C to abort.'
 
+        print >> sys.stderr, 'Which one do you want to create? (1): ',
         try:
             choice = raw_input().strip() or '1'
         except KeyboardInterrupt:
