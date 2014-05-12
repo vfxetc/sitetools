@@ -9,8 +9,9 @@ from sitetools.sites import Site, find_dev_sites
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--list', action='store_true')
-parser.add_argument('--all', action='store_true')
+parser.add_argument('--list', action='store_true', help='list all availible tools')
+parser.add_argument('--all', action='store_true', help='install all availible tools')
+parser.add_argument('--rebuild', action='store_true', help='rebuild all installed tools')
 parser.add_argument('name', nargs='*')
 args = parser.parse_args()
 
@@ -59,7 +60,9 @@ dev_site = get_dev_site()
 tool_dir = os.path.dirname(os.path.abspath(dev_site.prefix))
 pip = dev_site.which('pip')
 
-names = [tool['name'] for tool in tools] if args.all else args.name
+names = [tool['name'] for tool in tools] if args.all or args.rebuild else args.name
+if args.rebuild:
+    names = [name for name in names if os.path.exists(os.path.join(tool_dir, name))]
 
 for name in names:
 
