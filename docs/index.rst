@@ -4,33 +4,27 @@ sitetools
 =========
 
 Tools for setting up a Python execution environment at runtime. Generally useful
-for extending one virtualenv_ with another.
+for extending one virtualenv_ with another for development in a facility with
+large shared repositories.
 
 This will take a few automatic actions at Python startup (in order):
 
-1. All directories and virtualenvs listed within :envvar:`KS_SITES`
+1. The standard library logging_ will be setup.
+
+2. All directories and virtualenvs listed within :envvar:`KS_SITES`
    will be added to :data:`sys.path`, in a similar manner as site-packages (via
    :func:`sitetools.sites.add_site_dir`).
 
-2. Variables previously frozen via :func:`sitetools.environ.freeze` will be
-   restored.
+3. Any ``sitecustomize`` `entry points`_ will be called.
 
-3. Any ``sitecustomize`` `entry points`_ will be called::
+4. Variables previously frozen via :func:`sitetools.environ.freeze` will be restored.
 
-    from setuptools import setup
-    setup(
-        
-        # name, description, etc..
 
-        entry_points={
-            'sitecustomize': [
-                'name_of_hook = package.module:func',
-            ],
-        },
-    )
+Additionally, there are a set of :ref:`dev-* scripts <dev>` to assist in local development.
 
 
 .. _entry points: http://pythonhosted.org/setuptools/setuptools.html#dynamic-discovery-of-services-and-plugins
+.. _logging: https://docs.python.org/2/library/logging.html
 .. _virtualenv: https://pypi.python.org/pypi/virtualenv
 
 
