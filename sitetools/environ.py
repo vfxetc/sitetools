@@ -121,9 +121,19 @@ def _apply_diff(environ, diff):
 
     if diff:
         for k, v in diff.iteritems():
-            log.log(5, '%s="%s"', k, v)
+
+            if v is None:
+                log.log(5, 'unset %s', k)
+            else:
+                log.log(5, '%s="%s"', k, v)
 
             original[k] = environ.get(k)
+
+            if original[k] is None:
+                log.log(1, '%s was not set', k)
+            else:
+                log.log(1, '%s was "%s"', k, original[k])
+
             if v is None:
                 environ.pop(k, None)
             else:
