@@ -7,7 +7,7 @@ with slight modifications:
 
 2. We search for ``*.pth`` files within that directory and process them
    (nearly) the same as :func:`python:site.addsitedir` does; the differences are:
-        - we replace "{platform_spec}" with a platform specifier;
+        - we replace "{extended_platform_spec}" with a platform specifier;
         - we ignore the commands embedded in easy-install.pth files.
 
 3. We look for ``__site__.pth`` files within each top-level directory and
@@ -65,10 +65,9 @@ import stat
 import sys
 import traceback
 import warnings
-from distutils.util import get_platform
 
 from sitetools.utils import expand_user, get_environ_list
-
+from sitetools.platform import basic_platform_spec, extended_platform_spec
 
 log = logging.getLogger(__name__)
 
@@ -77,7 +76,6 @@ log = logging.getLogger(__name__)
 lib_postfix = os.path.join('lib', 'python%d.%d' % sys.version_info[:2])
 site_postfix = os.path.join(lib_postfix, 'site.py')
 site_package_postfix = os.path.join(lib_postfix, 'site-packages')
-platform_spec = '%s-%s' % (get_platform(), sys.version[:3])
 
 
 class Site(object):
@@ -245,8 +243,13 @@ def _process_pth(path, base, file_name):
             exec line
             continue
         
-        # Add it.
-        line = line.replace('{platform_spec}', platform_spec)
+        # Replace "{platform_spec}" to allow per-platform paths.
+        line = line.format(
+            platform_spec=basic_platform_spec,
+            basic_platform_spec=basic_platform_spec,
+            extended_platform_spec=extended_platform_spec,
+        )
+
         path.add(os.path.join(base, line))
 
 
