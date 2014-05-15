@@ -89,37 +89,13 @@ def git_distance(deployed_repo, left, right):
 def iter_available_packages():
     """Return a list of tools that are available to be installed."""
 
-    # For WesternX, we will pull from the $KS_TOOLS envvar, and cross reference
-    # with the $GIT to raise the bar incase there is another use for these
-    # variables.
-    ks_tools = os.environ.get('KS_TOOLS')
     ks_git = os.environ.get('GIT')
-    if (
-        ks_tools is not None and os.path.exists(ks_tools) and
-        ks_git is not None and os.path.exists(ks_git)
-    ):
-        for name in os.listdir(ks_tools):
+    for name in sorted(os.listdir(ks_git), key=str.lower):
+        if name.startswith('.') or not name.endswith('.git'):
+            continue
+        name = name[:-4]
+        yield {
+            'name': name,
+            'repo': 'git@git.westernx:westernx/%s' % name
+        }
 
-            # Lets just be a little stricter.
-            tool_git_path = os.path.join(ks_tools, name, '.git')
-            main_git_path = os.path.join(ks_git, name + '.git')
-            if not os.path.exists(tool_git_path) or not os.path.exists(main_git_path):
-                continue
-
-            yield {
-                'name': name,
-                'repo': 'git@git.westernx:westernx/%s' % name
-            }
-
-
-    # For everyone else, we will pull from a pkg_resources.iter_entry_points.
-    for ep in iter_entry_points('metatools_repos'):
-        res = ep.load()
-        if isinstance(res, Callable):
-            res = res()
-        if isinstance(res, dict):
-            yield dict
-        else:
-            for x in res:
-                yield x
-    
