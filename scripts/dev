@@ -129,61 +129,6 @@ if not new_sites:
     new_sites = find_dev_sites(users=opts.users or None)
 
 
-# Make sure that one of the new sites is a virtualenv.
-if not any(s.is_venv for s in new_sites) and not opts.no_site:
-
-    print >> sys.stderr, 'Could not find existing development virtualenv.'
-
-    # Find the ones that should resolve to a venv instead of just a directory.
-    venv_sites = [path for path in get_dev_site_patterns() if path.endswith('/bin/python')]
-    if not venv_sites:
-        print >> sys.stderr, 'Additionally, there are no virtualenv patterns in $KS_DEV_SITES.'
-        print >> sys.stderr, 'Add an entry to $KS_DEV_SITES which ends with "/bin/python", e.g.:'
-        print >> sys.stderr, 'export KS_DEV_SITES="~/dev/venv/bin/python:~/dev"'
-        exit(1)
-
-    # Order the choices so that those whose parents exist are offered first.
-    venv_sites_with_parent = [
-        path for path in venv_sites if
-        os.path.exists(os.path.abspath(os.path.join(os.path.expanduser(path), '..', '..', '..')))
-    ]
-    venv_options = venv_sites_with_parent + [path for path in venv_sites if path not in venv_sites_with_parent]
-
-    if not opts.create:
-
-        print >> sys.stderr, 'A virtualenv can be created in these locations:'
-        for i, path in enumerate(venv_options):
-            print >> sys.stderr, '    %d) %s' % (i + 1, path)
-
-        print >> sys.stderr, 'Which one do you want to create? (1): ',
-        try:
-            choice = raw_input().strip() or '1'
-        except KeyboardInterrupt:
-            exit(1)
-
-        try:
-            choice_i = int(choice) - 1
-        except ValueError:
-            choice_i = -1
-        if choice_i < 0 or choice_i >= len(venv_options):
-            exit(1)
-
-        venv = venv_options[choice_i]
-
-    else:
-        venv = venv_options[0]
-
-    venv_dir = os.path.abspath(os.path.join(os.path.expanduser(venv), '..', '..'))
-    
-    try:
-        check_call(['virtualenv', venv_dir])
-    except CalledProcessError:
-        print >> sys.stderr, 'virtualenv creation was not successful'
-        exit(1)
-
-    new_sites.append(Site(os.path.expanduser(venv)))
-
-
 if opts.list_sites:
     print ':'.join(str(s) for s in unique_sites(new_sites))
     exit(0)
@@ -238,15 +183,6 @@ if not opts.no_site:
 
     # Append on the existing sites, and make everything absolute.
     environ['KS_SITES'] = ':'.join([str(s) for s in new_sites] + get_environ_list('KS_SITES'))
-
-    # Hook for the next venv.
-    py_path = get_environ_list('PYTHON_PATH')
-    py_path = [x for x in py_path if not (
-        os.path.basename(x) == 'venv_hook' and
-        os.path.exists(os.path.join(x, 'sitecustomize.py'))
-    )]
-    py_path.insert(0, os.path.abspath(os.path.join(sitetools.__file__, '..', 'venv_hook')))
-    environ['PYTHONPATH'] = ':'.join(py_path)
 
 
 # Print out the changes to the environment.
