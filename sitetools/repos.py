@@ -7,6 +7,7 @@ from pkg_resources import iter_entry_points
 
 
 def git_call(deployed_repo, *args, **kwargs):
+    deployed_repo = os.path.abspath(deployed_repo)
     kwargs.setdefault('cwd', os.path.dirname(deployed_repo))
     cmd = ['git', '--git-dir', deployed_repo] 
     cmd.extend(args)
@@ -14,6 +15,7 @@ def git_call(deployed_repo, *args, **kwargs):
 
 
 def git_output(deployed_repo, *args, **kwargs):
+    deployed_repo = os.path.abspath(deployed_repo)
     kwargs.setdefault('cwd', os.path.dirname(deployed_repo))
     cmd = ['git', '--git-dir', deployed_repo] 
     cmd.extend(args)
