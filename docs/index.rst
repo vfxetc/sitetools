@@ -1,11 +1,11 @@
 .. _index:
 
-sitetools
-=========
+sitetools - WesternX's Python Setup
+===================================
 
-Tools for setting up a Python execution environment at runtime. Generally useful
-for extending one virtualenv_ with another for development in a facility with
-large shared repositories.
+Tools for setting up WesternX's Python execution environment at runtime.
+Generally useful for extending one (real or pseudo) virtualenv_ with another
+for development in a facility with large shared repositories.
 
 This will take a few automatic actions at Python startup (in order):
 
@@ -15,15 +15,20 @@ This will take a few automatic actions at Python startup (in order):
    will be added to :data:`sys.path`, in a similar manner as site-packages (via
    :func:`sitetools.sites.add_site_dir`).
 
-3. Any ``sitecustomize`` `entry points`_ will be called.
+3. Variables previously frozen via :func:`sitetools.environ.freeze` will be restored.
 
-4. Variables previously frozen via :func:`sitetools.environ.freeze` will be restored.
-
-
-Additionally, there are a set of :ref:`dev-* scripts <dev>` to assist in local development.
+4. Monkey-patch :func:`os.chflags` to not error on our NFS (by ignoring the
+error) for Python2.6.
 
 
-.. _entry points: http://pythonhosted.org/setuptools/setuptools.html#dynamic-discovery-of-services-and-plugins
+.. warning:: Be extremely careful while modifying this package and test it very
+    thoroughly, since being able to locate any other packages is dependent on it
+    running successfully.
+
+
+Additionally, there are :ref:`a set of scripts <dev>` to assist in local development.
+
+
 .. _logging: https://docs.python.org/2/library/logging.html
 .. _virtualenv: https://pypi.python.org/pypi/virtualenv
 

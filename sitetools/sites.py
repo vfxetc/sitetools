@@ -4,20 +4,25 @@ This module is mostly a re-implementation of :func:`python:site.addsitedir`,
 with slight modifications:
 
 1. We add the given directory to the :data:`python:sys.path`.
+
 2. We search for ``*.pth`` files within that directory and process them
-   (nearly) the same as :func:`python:site.addsitedir` does.
+   (nearly) the same as :func:`python:site.addsitedir` does; the differences are:
+        - we replace "{platform_spec}" with a platform specifier;
+        - we ignore the commands embedded in easy-install.pth files.
+
 3. We look for ``__site__.pth`` files within each top-level directory and
    process them as well. This allows for a tool to self-describe its
    paths and contain that metadata within its own repository, and therefore
    be usable without being "installed".
 
 
-
 We reimplemented this because:
 
 1. Our NFS was throwing some wierd errors with :func:`site.addsitedir` (due to ``._*`` files).
+
 2. We wanted self-describing repositories.
-3. We wanted virtualenvs to be able to inherit from each other.
+
+3. We needed a way to link in different build for different platforms.
 
 
 Environment Variables
