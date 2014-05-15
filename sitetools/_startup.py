@@ -25,6 +25,5 @@ def import_and_call(mod_name, func_name, *args, **kwargs):
 # and should only eval once.
 import_and_call('sitetools.logging', '_setup')
 import_and_call('sitetools.sites', '_setup')
-import_and_call('sitetools.hooks', '_setup')
 import_and_call('sitetools.monkeypatch', '_setup')
 import_and_call('sitetools.environ', '_setup')
