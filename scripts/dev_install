@@ -57,8 +57,11 @@ for name in names:
     if not os.path.exists(tool_path):
         check_call(['git', 'clone', repo, name], cwd=tool_dir)
     
-    if os.path.exists(os.path.join(tool_path, 'setup.py')):
-        check_call(['python', 'setup.py', 'egg_info'], cwd=tool_path)
+    setup_path = os.path.join(tool_path, 'setup.py')
+    if os.path.exists(setup_path):
+
+        # Need to inject setuptools for this.
+        check_call(['python', '-c', 'import setuptools; __file__="%s"; execfile(__file__)' % setup_path, 'egg_info'], cwd=tool_path)
 
         dirs_to_link = set()
         for top_level in glob.glob(os.path.join(tool_path, '*.egg-info', 'top_level.txt')):

@@ -238,7 +238,8 @@ for tool_name in tool_names:
         check_call(['make', '-j4'], cwd=tool_path)
 
     # Build via setuptools.
-    if not opts.nobuild and os.path.exists(os.path.join(tool_path, 'setup.py')):
+    setup_path = os.path.join(tool_path, 'setup.py')
+    if not opts.nobuild and os.path.exists(setup_path):
 
         # We try to get compiled extensions to build into a directory that is
         # more specific than distutils tends to do. Just in case it refuses to
@@ -261,7 +262,8 @@ for tool_name in tool_names:
         is_pure = not is_extended and os.path.exists(purelib_path)
 
         # Install egg-info (for entry_points, mostly).
-        if call(['python', 'setup.py',
+        # Need to inject setuptools for this.
+        if call(['python', '-c', 'import setuptools; __file__="%s"; execfile(__file__)' % (setup_path, ),
             'install_egg_info', '-d', purelib_path if is_pure else (platlib_extended_path if is_extended else platlib_default_path),
         ], cwd=tool_path):
             error('Could not build Python egg_info')
