@@ -35,8 +35,7 @@ optparser = optparse.OptionParser(
     usage="usage: %prog [options] command [argument ...]"
 )
 optparser.add_option(
-    '-e', '--export',
-    dest="export", action="store_true", default=False,
+    '-e', '--export', action="store_true",
     help="print the changes to the environment",
 )
 optparser.add_option(
@@ -44,8 +43,7 @@ optparser.add_option(
     help="create the dev venv if it doesn't exist",
 )
 optparser.add_option(
-    '-n', '--no-site',
-    dest='no_site', action='store_true', default=False,
+    '-n', '--no-site', action='store_true',
     help='do not modify the python path',
 )
 optparser.add_option(
@@ -64,18 +62,15 @@ optparser.add_option(
     help="user whose dev environment to inherit; overriden by --site",
 )
 optparser.add_option(
-    '--list-sites',
-    dest="list_sites", action="store_true", default=False,
+    '--list-sites', action="store_true",
     help="list the development environments we would have used (colon delimited)"
 )
 optparser.add_option(
-    '--bootstrap',
-    dest="bootstrap", action="store_true", default=False,
+    '--bootstrap', action="store_true",
     help="bootstrap a previous environment from $KS_DEV_ARGS",
 )
 optparser.add_option(
-    '-v', '--verbose',
-    dest="verbose", action="count",
+    '-v', '--verbose', action="count",
     help="request verbose behaviour from scripts; sets $KS_VERBOSE; twice for very verbose",
 )
 optparser.add_option(
