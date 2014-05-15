@@ -56,9 +56,6 @@ for name in names:
 
     if not os.path.exists(tool_path):
         check_call(['git', 'clone', repo, name], cwd=tool_dir)
-
-    if os.path.exists(os.path.join(tool_path, 'Makefile')):
-        check_call(['make'], cwd=tool_path)
     
     if os.path.exists(os.path.join(tool_path, 'setup.py')):
         check_call(['python', 'setup.py', 'egg_info'], cwd=tool_path)
