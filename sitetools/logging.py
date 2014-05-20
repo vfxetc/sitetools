@@ -35,6 +35,14 @@ Environment Variables
 
     Keys available include: ``date``, ``time``, ``login``, ``ip``, and ``pid``.
 
+.. envvar:: KS_VERBOSE
+
+    Set by ``-v`` flags to the :ref:`dev command <dev_command>'.
+
+    When set to ``"1"``, ``"2"`` or ``"3"`` will request increasingly higher
+    levels of verbosity. Right now that means decreasing the default logging
+    threshold in Python processes to :const:`DEBUG`, :const:`TRACE` (5), and
+    :const:`BLATHER` (1), respectively.
 
 .. envvar:: KS_LOG_LEVELS
 

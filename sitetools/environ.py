@@ -1,25 +1,28 @@
 """
 
 Since our development environment is controlled completely by passing
-environment variables from one process to its children, in generaly allow all
+environment variables from one process to its children, in general we allow all
 variables to flow freely. There are, however, a few circumstances in which we
 need to inhibit this flow.
 
 Maya and Nuke, for example, add to the :envvar:`python:PYTHONHOME`, and our
-launchers add to :envvar:`KS_SITES` (for PyQt, etc.). These changes must
-not propigate to other processes.
+launchers add to :envvar:`KS_SITES` (e.g., for the app's special flavour of
+PyQt, etc.), and these changes must not propigate to child processes.
 
 These tools allow us to manage those variables which should not propigate.
-Upon Python startup, these tools will reset any variables which have been flagged.
+In a "freeze", the current state of given variables will be stored in the
+environment (for which you can provide part of the variable name). Then you can
+modify those variables for use, and launch the app. Upon Python startup, these
+tools will reset any variables which have been flagged with the default,
+unnamed, namespace.
 
 
-Actual Variables
-----------------
+Environ Variables
+-----------------
+
 .. envvar:: KS_ENVIRON_DIFF
 
-    A set of variables to update (or delete) from Python's :data:`os.environ`
-    at startup. This is used to force variables that are nessesary for startup
-    to not propigate into the next executable.
+    Where the default, unnamed, freeze is stored.
     
     .. warning:: Do not use this directly, as the format is subject to change
         without notice. Instead, use :func:`sitecustomize.environ.freeze`.
