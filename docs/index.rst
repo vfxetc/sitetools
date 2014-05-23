@@ -44,3 +44,4 @@ Contents
     sites
     environ
     logging
+    path
