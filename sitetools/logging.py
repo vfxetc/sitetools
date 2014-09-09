@@ -276,3 +276,14 @@ def _setup():
         handler.addFilter(ContextInfoFilter())
         logging.getLogger().addHandler(handler)
 
+    sentry_dsn = os.environ.get('PYTHONSENTRYDSN')
+    if sentry_dsn:
+        from raven import Client
+        from raven.handlers.logging import SentryHandler
+        if not hasattr(sys, 'argv'):
+            sys.argv = ['<startup>']
+        sentry_client = Client(sentry_dsn)
+        sentry_handler = SentryHandler(sentry_client)
+        logging.getLogger().addHandler(sentry_handler)
+
+
