@@ -94,7 +94,7 @@ def _show_warning(message, category, filename, lineno, file=None, line=None):
 _context_start_time = datetime.datetime.now()
 _context = {}
 def _get_context():
-    if not _context:
+    if _context.get('pid') != os.getpid():
 
         # Try to get the outward-facing IP of this machine. We connect
         # to a remote IP (in this case, Google's DNS) and read out the
