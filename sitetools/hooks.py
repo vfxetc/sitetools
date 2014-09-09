@@ -1,3 +1,4 @@
+import traceback
 from pkg_resources import iter_entry_points
 from warnings import warn
 
@@ -8,5 +9,5 @@ def _setup():
         try:
             callback()
         except Exception as e:
-            warn('%s during sitecustomize hook' % e)
+            warn('%s during sitecustomize hook: %s\n%s' % (e.__class__.__name__, e, traceback.format_exc()))
 
