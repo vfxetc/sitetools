@@ -227,7 +227,8 @@ def _setup():
     root = logging.getLogger()
     root.setLevel(level)
     handler = logging.StreamHandler(_FileSafetyWrapper(sys.stderr))
-    handler.setFormatter(logging.Formatter(BASE_FORMAT))
+    handler.setFormatter(logging.Formatter(FULL_FORMAT))
+    handler.addFilter(ContextInfoFilter())
     root.addHandler(handler)
 
     log.log(BLATHER, 'root logging setup')
