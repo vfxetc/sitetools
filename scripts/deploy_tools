@@ -209,6 +209,14 @@ for tool_name in tool_names:
     if opts.clean:
         git_call(deployed_repo, 'clean', '-dXf')
     
+    # Add rpaths to libs
+    if 'DEPLOY_TOOLS_RPATHS' in os.environ:
+        rpaths =  '  '.join([ '-Wl,-rpath,' + p for p in os.environ['DEPLOY_TOOLS_RPATHS'].split(":")])
+        if rpaths:
+            if 'LDFLAGS' not in os.environ:
+                 os.environ['LDFLAGS'] = ''
+            os.environ['LDFLAGS'] += rpaths
+
     # Run a top-level Makefile if it exists.
     if not opts.nomake and os.path.exists(os.path.join(tool_path, 'Makefile')):
         check_call(['make', '-j4'], cwd=tool_path)
