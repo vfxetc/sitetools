@@ -238,6 +238,7 @@ for tool_name in tool_names:
             '--build-temp', temp_path,
             '--build-purelib', purelib_path,
             '--build-platlib', platlib_extended_path,
+            '--build-scripts', os.path.join(tool_path, 'build', 'scripts'),
         ], cwd=tool_path):
             error('Could not build Python package')
             continue
