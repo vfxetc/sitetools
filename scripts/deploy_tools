@@ -234,11 +234,14 @@ for tool_name in tool_names:
         platlib_default_path = os.path.join(tool_path, 'build', 'lib.' + basic_platform_spec)
         platlib_extended_path = os.path.join(tool_path, 'build', 'lib.' + extended_platform_spec)
 
-        if call(['python', 'setup.py', 'build',
-            '--build-temp', temp_path,
-            '--build-purelib', purelib_path,
-            '--build-platlib', platlib_extended_path,
-            '--build-scripts', os.path.join(tool_path, 'build', 'scripts'),
+        if call(['python', 'setup.py',
+            'build',
+                '--build-temp', temp_path,
+                '--build-purelib', purelib_path,
+                '--build-platlib', platlib_extended_path,
+                '--build-scripts', os.path.join(tool_path, 'build', 'scripts-build'),
+            'install_scripts',
+                '--install-dir', os.path.join(tool_path, 'build', 'scripts'),
         ], cwd=tool_path):
             error('Could not build Python package')
             continue
