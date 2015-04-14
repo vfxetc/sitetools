@@ -24,7 +24,7 @@ def error(message):
     print '   ', colour('ERROR:', fg='red', reset=True), str(message)
 
 def warning(message):
-    print '   ', colour('WARNING:', bg='yellow', reset=True), str(message)
+    print '   ', colour('WARNING:', fg='yellow', reset=True), str(message)
 
 
 
