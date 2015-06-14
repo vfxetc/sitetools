@@ -9,7 +9,8 @@ import warnings
 try:
     from metatools.monkeypatch import patch
 except ImportError:
-    warnings.warn('cannot monkeypatch without metatools')
+    if sys.version_info < (2, 7):
+        warnings.warn('cannot monkeypatch without metatools')
     patch = None
 
 
