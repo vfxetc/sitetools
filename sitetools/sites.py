@@ -4,20 +4,25 @@ This module is mostly a re-implementation of :func:`python:site.addsitedir`,
 with slight modifications:
 
 1. We add the given directory to the :data:`python:sys.path`.
+
 2. We search for ``*.pth`` files within that directory and process them
-   (nearly) the same as :func:`python:site.addsitedir` does.
+   (nearly) the same as :func:`python:site.addsitedir` does; the differences are:
+        - we replace "{extended_platform_spec}" with a platform specifier;
+        - we ignore the commands embedded in easy-install.pth files.
+
 3. We look for ``__site__.pth`` files within each top-level directory and
    process them as well. This allows for a tool to self-describe its
    paths and contain that metadata within its own repository, and therefore
    be usable without being "installed".
 
 
-
 We reimplemented this because:
 
 1. Our NFS was throwing some wierd errors with :func:`site.addsitedir` (due to ``._*`` files).
+
 2. We wanted self-describing repositories.
-3. We wanted virtualenvs to be able to inherit from each other.
+
+3. We needed a way to link in different build for different platforms.
 
 
 Environment Variables
@@ -62,13 +67,15 @@ import traceback
 import warnings
 
 from sitetools.utils import expand_user, get_environ_list
-
+from sitetools.platform import basic_platform_spec, extended_platform_spec
 
 log = logging.getLogger(__name__)
 
 
 # TODO: Derive this for more platforms.
-site_package_postfix = os.path.join('lib', 'python%d.%d' % sys.version_info[:2], 'site-packages')
+lib_postfix = os.path.join('lib', 'python%d.%d' % sys.version_info[:2])
+site_postfix = os.path.join(lib_postfix, 'site.py')
+site_package_postfix = os.path.join(lib_postfix, 'site-packages')
 
 
 class Site(object):
@@ -86,11 +93,17 @@ class Site(object):
         if stat.S_ISDIR(self.stat.st_mode):
             self.is_venv = False
 
-        elif os.path.basename(self.path) in ('python', 'python%s.%s' % sys.version_info[:2]):
+        # Discover the prefix in much the same way that Python does itself.
+        # This test for the python executable isn't very robust, but it catches
+        # the normal cases on Linux and OS X (even when in a Framework).
+        elif os.path.basename(self.path).lower() in ('python', 'python%s.%s' % sys.version_info[:2]):
             prefix = os.path.abspath(self.path)
             while prefix and prefix != '/':
                 prefix = os.path.dirname(prefix)
-                if os.path.exists(os.path.join(prefix, site_package_postfix)):
+                if (
+                    os.path.exists(os.path.join(prefix, site_package_postfix)) or
+                    os.path.exists(os.path.join(prefix, site_postfix))
+                ):
                     self.is_venv = True
                     self.prefix = prefix
                     break
@@ -230,7 +243,13 @@ def _process_pth(path, base, file_name):
             exec line
             continue
         
-        # Add it.
+        # Replace "{platform_spec}" to allow per-platform paths.
+        line = line.format(
+            platform_spec=basic_platform_spec,
+            basic_platform_spec=basic_platform_spec,
+            extended_platform_spec=extended_platform_spec,
+        )
+
         path.add(os.path.join(base, line))
 
 

@@ -26,7 +26,7 @@ You can then get those debug logs dumped to your terminal by using the :ref:`dev
 Environment Variables
 ---------------------
 
-.. envvar:: PYTHONLOGFILE
+.. envvar:: KS_PYTHON_LOG_FILE
 
     A format string for determining where to save ``logging`` logs. Defaults
     (in the WesternX environment) to::
@@ -36,18 +36,18 @@ Environment Variables
     Keys available include: ``date``, ``time``, ``login``, ``ip``, and ``pid``.
 
 
-.. envvar:: PYTHONLOGLEVELS
+.. envvar:: KS_LOG_LEVELS
 
     A space-or-comma-delimited list of logger names and minimum record levels. E.g.::
 
-        $ export PYTHONLOGLEVELS=:WARNING,mayatools:DEBUG
+        $ export KS_LOG_LEVELS=:WARNING,mayatools:DEBUG
 
     would set the general logging threshold to :const:`logging.WARNING`, but anything
     within ``mayatools`` to :const:`logging.DEBUG`.
 
     In an emergency this can effectively disable the logging system by setting::
 
-        $ export PYTHONLOGLEVELS=:100
+        $ export KS_LOG_LEVELS=:100
 
     which is too high for any (built-in) log levels.
 
@@ -241,7 +241,7 @@ def _setup():
         logging.getLogger(name).setLevel(level)
     
     # Setup specially requested levels, usually from `dev --log name:LEVEL`
-    requested_levels = os.environ.get('PYTHONLOGLEVELS') or os.environ.get('KS_LOG_LEVELS')
+    requested_levels = os.environ.get('KS_LOG_LEVELS')
     if requested_levels:
         requested_levels = [x.strip() for x in re.split(r'[\s,]+', requested_levels)]
         requested_levels = [x for x in requested_levels if x]
@@ -268,7 +268,7 @@ def _setup():
             log.log(TRACE, '%s set to %s', name, level)
 
     # Setup logging to a file, if requested.
-    pattern = os.environ.get('PYTHONLOGFILE')
+    pattern = os.environ.get('KS_PYTHON_LOG_FILE')
     if pattern:
         handler = PatternedFileHandler(pattern, delay=True)
         handler.setLevel(logging.INFO)
@@ -285,5 +285,26 @@ def _setup():
         sentry_client = Client(sentry_dsn)
         sentry_handler = SentryHandler(sentry_client)
         logging.getLogger().addHandler(sentry_handler)
+
+
+def _setup_maya():
+    """Setup Maya logging, but be *really* defensive about it."""
+
+    try:
+        import maya.utils
+    except ImportError:
+        return
+
+    # Remove the shell handler; we have created one ourselves.
+    if hasattr(maya.utils, 'shellLogHandler'):
+        maya_handler = logging.getLogger(os.environ.get('MAYA_DEFAULT_LOGGER_NAME'))
+        maya_handler.removeHandler(maya.utils.shellLogHandler())
+
+    # Change the default format on the UI handler.
+    # TODO: Get some safety wrapping arounc this handler.
+    if hasattr(maya.utils, 'guiLogHandler'):
+        format = os.environ.get('MAYA_GUI_LOGGER_FORMAT')
+        if not format:
+            maya.utils.guiLogHandler().setFormatter(logging.Formatter(MAYA_FORMAT))
 
 
