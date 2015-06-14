@@ -28,4 +28,6 @@ import_and_call('sitetools.logging', '_setup_maya')
 import_and_call('sitetools.sites', '_setup')
 import_and_call('sitetools.monkeypatch', '_setup')
 import_and_call('sitetools.environ', '_setup')
-import_and_call('sitetools.hooks', '_setup')
+
+# Something for sitehooks to latch onto.
+sitehook = lambda: None

@@ -9,6 +9,12 @@ setup(
     
     packages=['sitetools'],
     
+    entry_points={
+        'sitehooks': {
+            '000_sitetools = sitetools._startup:sitehook'
+        },
+    },
+    
     author='Mike Boers',
     author_email='sitetools@mikeboers.com',
     license='BSD-3',
