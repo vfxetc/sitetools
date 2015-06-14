@@ -6,11 +6,18 @@ import errno
 import sys
 import warnings
 
-from metatools.monkeypatch import patch
+try:
+    from metatools.monkeypatch import patch
+except ImportError:
+    warnings.warn('cannot monkeypatch without metatools')
+    patch = None
 
 
 def _setup():
 
+    if not patch:
+        return
+    
     # Monkey-patch chflags for Python2.6 since our NFS does not support it and
     # Python2.6 does not ignore that lack of support.
     # See: http://hg.python.org/cpython/rev/e12efebc3ba6/
