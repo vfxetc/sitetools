@@ -294,7 +294,8 @@ def _setup():
                 _application='python.logging',
                 _pid=record.process,
                 _python_log_name=record.name,
-                _python_log_level=record.levelno,
+                _python_log_levelno=record.levelno,
+                _python_log_levelname=record.levelname,
             ))
     handler = GraylogHandler('graylog.westernx', 12201)
     handler.setLevel(logging.INFO)
