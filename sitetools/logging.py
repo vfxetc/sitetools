@@ -66,7 +66,8 @@ from __future__ import absolute_import
 
 import codecs
 import datetime
-import logging
+import json
+import logging.handlers
 import os
 import pwd
 import re
@@ -282,6 +283,24 @@ def _setup():
         handler.setFormatter(logging.Formatter(FULL_FORMAT))
         handler.addFilter(ContextInfoFilter())
         logging.getLogger().addHandler(handler)
+        
+    # log to graylog
+    class GraylogHandler(logging.handlers.DatagramHandler):
+        def makePickle(self, record):
+            return json.dumps(dict(
+                version='1.1',
+                host=socket.gethostname(),
+                short_message=self.format(record),
+                _application='python.logging',
+                _pid=record.process,
+                _python_log_name=record.name,
+                _python_log_level=record.levelno,
+            ))
+    handler = GraylogHandler('graylog.westernx', 12201)
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(logging.Formatter('%(levelname)8s %(name)s: %(message)s'))
+    root.addHandler(handler)
+
 
 
 def _setup_maya():
