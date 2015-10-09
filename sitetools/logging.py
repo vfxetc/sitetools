@@ -243,8 +243,9 @@ def _setup():
 
     # Set the levels on a few (verbose) loggers.
     for name, level in (
-        ('pymel', logging.WARNING),
+        ('libav', logging.WARNING),
         ('paramiko.transport', logging.WARNING),
+        ('pymel', logging.WARNING),
     ):
         logging.getLogger(name).setLevel(level)
     
