@@ -73,6 +73,7 @@ import pwd
 import re
 import socket
 import sys
+import traceback
 import warnings
 
 log = logging.getLogger(__name__)
@@ -288,7 +289,8 @@ def _setup():
     # log to graylog
     class GraylogHandler(logging.handlers.DatagramHandler):
         def makePickle(self, record):
-            return json.dumps(dict(
+            
+            msg = dict(
                 version='1.1',
                 host=socket.gethostname(),
                 short_message=self.format(record),
@@ -297,7 +299,19 @@ def _setup():
                 _python_log_name=record.name,
                 _python_log_levelno=record.levelno,
                 _python_log_levelname=record.levelname,
-            ))
+            )
+
+            # For error and above, we would like a traceback.
+            if record.levelno >= logging.ERROR:
+                # Find the root of the stack trace in which we have left
+                # the logging package.
+                frame = sys._getframe(1)
+                while frame.f_back and (frame.f_globals.get('__package__') or '').startswith('logging'):
+                    frame = frame.f_back
+                msg['_python_stack'] = ''.join(traceback.format_stack(frame))
+
+            return json.dumps(msg)
+
     handler = GraylogHandler('graylog.westernx', 12201)
     handler.setLevel(logging.INFO)
     handler.setFormatter(logging.Formatter('%(levelname)8s %(name)s: %(message)s'))
