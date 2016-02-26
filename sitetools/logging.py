@@ -287,12 +287,13 @@ def _setup():
         logging.getLogger().addHandler(handler)
         
     # log to graylog
+    hostname = socket.gethostname()
     class GraylogHandler(logging.handlers.DatagramHandler):
         def makePickle(self, record):
             
             msg = dict(
                 version='1.1',
-                host=socket.gethostname(),
+                host=hostname,
                 short_message=self.format(record),
                 _application='python.logging',
                 _pid=record.process,
@@ -311,11 +312,14 @@ def _setup():
                 msg['_python_stack'] = ''.join(traceback.format_stack(frame))
 
             return json.dumps(msg)
-
-    handler = GraylogHandler('graylog.westernx', 12201)
-    handler.setLevel(logging.INFO)
-    handler.setFormatter(logging.Formatter('%(levelname)8s %(name)s: %(message)s'))
-    root.addHandler(handler)
+    
+    spec = os.environ.get('GRAYLOG', '10.2.200.3:12201')
+    if spec:
+        host, port = spec.split(':')
+        handler = GraylogHandler(host, int(port)) # DNS lookup was rediculous.
+        handler.setLevel(logging.INFO)
+        handler.setFormatter(logging.Formatter('%(levelname)8s %(name)s: %(message)s'))
+        root.addHandler(handler)
 
 
 
