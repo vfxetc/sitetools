@@ -5,61 +5,23 @@ Development Scripts
 
 .. _dev_install:
 
-The `dev-install` Command
+The `dev_install` Command
 -------------------------
 
-A ``dev-install`` command exists to assist in the installation of tools for local development. It will first assert that a virtualenv_ exists in your home, clone the tool, and finally install it into your virtualenv.
+A ``dev_install`` command exists to assist in the installation of tools for
+local development. It will clone the tool if it is missing, and add to a
+``dev.pth`` file to link it into your environment::
 
-The first time you run ``dev-install`` (or ``dev``) on a platform, you will be prompted to create your venv::
-
-    $ dev true
-    Could not find existing development virtualenv.
-    A virtualenv can be created in these locations:
-        1) ~/dev/venv-osx/bin/python
-        2) ~/key_tools/venv-osx/bin/python
-    Which one do you want to create? (1): 1
-    New python executable in /home/mboers/dev/venv-osx/bin/python
-    Installing setuptools, pip...done.
-
-Now you can install tools::
-
-    $ dev-install --list
+    $ dev_install --list
     < big list of tools and their repos >
 
-    $ dev-install sgfs
+    $ dev_install sgfs
     < snip >
     Successfully installed sgfs
     Cleaning up...
 
-
-.. _dev_status:
-
-The `dev-status` Command
-------------------------
-
-A ``dev-status`` command exists to help you figure out how your local tools relate to those in production::
-
-    $ dev-status
-        WARNING: You are behind by 6 commits.
-    ==> sgsession
-        Working directory is dirty.
-    ==> sgfs
-        Up to date.
-
-Here we can see that my copy of ``key_base`` is behind by 6 commits, I have uncommitted work on ``sgsession``, and my ``sgfs`` is up to date.
-
-We can have ``dev-status`` bring everything up to date for us::
-
-    
-    $ dev-status -nu
-    ==> key_base
-    Updating 05eb284..fc9c4f8
-    Fast-forward
-        Up to date.
-    ==> sgsession
-        Working directory is dirty.
-    ==> sgfs
-        Up to date.
+If something has changed about the package that breaks its link (e.g. top-level
+package names have changed), then ``dev_install --rebuild NAME`` should fix it.
 
 
 .. _dev_command:

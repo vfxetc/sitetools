@@ -7,7 +7,7 @@ with slight modifications:
 
 2. We search for ``*.pth`` files within that directory and process them
    (nearly) the same as :func:`python:site.addsitedir` does; the differences are:
-        - we replace "{extended_platform_spec}" with a platform specifier;
+        - we replace ``{extended_platform_spec}`` with a platform specifier;
         - we ignore the commands embedded in easy-install.pth files.
 
 3. We look for ``__site__.pth`` files within each top-level directory and
@@ -18,7 +18,8 @@ with slight modifications:
 
 We reimplemented this because:
 
-1. Our NFS was throwing some wierd errors with :func:`site.addsitedir` (due to ``._*`` files).
+1. Our NFS was throwing some wierd errors with :func:`site.addsitedir`
+   (due to ``._*`` files).
 
 2. We wanted self-describing repositories.
 
@@ -30,11 +31,12 @@ Environment Variables
 
 .. envvar:: KS_SITES
 
-    A colon-delimited list of sites to add as pseudo site-packages (see :ref:`python_setup`).
+    A colon-delimited list of sites to add as pseudo site-packages (see
+    :ref:`python_setup`).
 
-    If the "site" is a directory, it will be processed as if it were a ``site-packages`` directory.
-
-    If the "site" is a file named ``python``, it will search for the corresponding ``site-packages`` directory.
+    If the "site" is a directory, it will be processed as if it were a
+    ``site-packages`` directory. If the "site" is a file named ``python``, it
+    will search for the corresponding ``site-packages`` directory.
 
     If the current environment (equivalent to :data:`python:sys.executable`) is
     found in this list then it will be used as a centering point for the

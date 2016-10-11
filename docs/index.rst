@@ -4,21 +4,22 @@ sitetools - WesternX's Python Setup
 ===================================
 
 Tools for setting up WesternX's Python execution environment at runtime.
-Generally useful for extending one (real or pseudo) virtualenv_ with another
-for development in a facility with large shared repositories.
+Generally useful for extending one Python prefix (or virtualenv_) with another.
 
-This will take a few automatic actions at Python startup (in order):
+When ``sitetools._startup`` is imported (by ``sitecustomize`` in our environment),
+this will take a few automatic actions:
 
 1. The standard library logging_ will be setup.
 
 2. All directories and virtualenvs listed within :envvar:`KS_SITES`
    will be added to :data:`sys.path`, in a similar manner as site-packages (via
-   :func:`sitetools.sites.add_site_dir`).
+   :func:`sitetools.sites.add_site_dir`), but extended to support multi-platform
+   builts and self-describing tools.
 
 3. Variables previously frozen via :func:`sitetools.environ.freeze` will be restored.
 
 4. Monkey-patch :func:`os.chflags` to not error on our NFS (by ignoring the
-error) for Python2.6.
+   error) for Python2.6.
 
 
 .. warning:: Be extremely careful while modifying this package and test it very
@@ -43,3 +44,4 @@ Contents
     sites
     environ
     logging
+    path

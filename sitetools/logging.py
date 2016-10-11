@@ -35,6 +35,14 @@ Environment Variables
 
     Keys available include: ``date``, ``time``, ``login``, ``ip``, and ``pid``.
 
+.. envvar:: KS_VERBOSE
+
+    Set by ``-v`` flags to the :ref:`dev command <dev_command>'.
+
+    When set to ``"1"``, ``"2"`` or ``"3"`` will request increasingly higher
+    levels of verbosity. Right now that means decreasing the default logging
+    threshold in Python processes to :const:`DEBUG`, :const:`TRACE` (5), and
+    :const:`BLATHER` (1), respectively.
 
 .. envvar:: KS_LOG_LEVELS
 
@@ -58,12 +66,14 @@ from __future__ import absolute_import
 
 import codecs
 import datetime
-import logging
+import json
+import logging.handlers
 import os
 import pwd
 import re
 import socket
 import sys
+import traceback
 import warnings
 
 log = logging.getLogger(__name__)
@@ -235,8 +245,9 @@ def _setup():
 
     # Set the levels on a few (verbose) loggers.
     for name, level in (
-        ('pymel', logging.WARNING),
+        ('libav', logging.WARNING),
         ('paramiko.transport', logging.WARNING),
+        ('pymel', logging.WARNING),
     ):
         logging.getLogger(name).setLevel(level)
     
@@ -275,6 +286,42 @@ def _setup():
         handler.setFormatter(logging.Formatter(FULL_FORMAT))
         handler.addFilter(ContextInfoFilter())
         logging.getLogger().addHandler(handler)
+        
+    # log to graylog
+    hostname = socket.gethostname()
+    class GraylogHandler(logging.handlers.DatagramHandler):
+        def makePickle(self, record):
+            
+            msg = dict(
+                version='1.1',
+                host=hostname,
+                short_message=self.format(record),
+                _application='python.logging',
+                _pid=record.process,
+                _python_log_name=record.name,
+                _python_log_levelno=record.levelno,
+                _python_log_levelname=record.levelname,
+            )
+
+            # For error and above, we would like a traceback.
+            if record.levelno >= logging.ERROR:
+                # Find the root of the stack trace in which we have left
+                # the logging package.
+                frame = sys._getframe(1)
+                while frame.f_back and (frame.f_globals.get('__package__') or '').startswith('logging'):
+                    frame = frame.f_back
+                msg['_python_stack'] = ''.join(traceback.format_stack(frame))
+
+            return json.dumps(msg)
+    
+    spec = os.environ.get('GRAYLOG', '10.2.200.3:12201')
+    if spec:
+        host, port = spec.split(':')
+        handler = GraylogHandler(host, int(port)) # DNS lookup was rediculous.
+        handler.setLevel(logging.INFO)
+        handler.setFormatter(logging.Formatter('%(levelname)8s %(name)s: %(message)s'))
+        root.addHandler(handler)
+
 
     sentry_dsn = os.environ.get('PYTHONSENTRYDSN')
     if sentry_dsn:
