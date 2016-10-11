@@ -337,6 +337,10 @@ def _setup():
 def _setup_maya():
     """Setup Maya logging, but be *really* defensive about it."""
 
+    # We are having trouble with this in Mark Media. For some reason this
+    # remains importable from a uifutures.host launched from Maya.
+    return
+
     try:
         import maya.utils
     except ImportError:
