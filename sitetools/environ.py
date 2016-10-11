@@ -6,7 +6,7 @@ variables to flow freely. There are, however, a few circumstances in which we
 need to inhibit this flow.
 
 Maya and Nuke, for example, add to the :envvar:`python:PYTHONHOME`, and our
-launchers add to :envvar:`KS_SITES` (e.g., for the app's special flavour of
+launchers add to :envvar:`SITETOOLS_SITES` (e.g., for the app's special flavour of
 PyQt, etc.), and these changes must not propigate to child processes.
 
 These tools allow us to manage those variables which should not propigate.
@@ -20,7 +20,7 @@ unnamed, namespace.
 Environ Variables
 -----------------
 
-.. envvar:: KS_ENVIRON_DIFF
+.. envvar:: SITETOOLS_ENVIRON_DIFF
 
     Where the default, unnamed, freeze is stored.
     
@@ -44,8 +44,8 @@ import re
 
 log = logging.getLogger(__name__)
 
-VARIABLE_NAME = 'KS_ENVIRON_DIFF'
-VARIABLE_PATTERN = 'KS_%s_ENVIRON_DIFF'
+VARIABLE_NAME = 'SITETOOLS_ENVIRON_DIFF'
+VARIABLE_PATTERN = 'SITETOOLS_%s_ENVIRON_DIFF'
 
 _dumps = json.dumps
 _loads = json.loads

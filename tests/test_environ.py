@@ -15,12 +15,12 @@ class TestEnvironFreeze(TestCase):
 
         env['X'] = '2'
 
-        self.assertIn('KS_ENVIRON_DIFF', env)
+        self.assertIn('SITETOOLS_ENVIRON_DIFF', env)
         self.assertEqual(env['X'], '2')
 
         unfreeze(None, pop=True, environ=env)
 
-        self.assertNotIn('KS_ENVIRON_DIFF', env)
+        self.assertNotIn('SITETOOLS_ENVIRON_DIFF', env)
         self.assertEqual(env['X'], '1')
 
     def test_freeze_for_app_use(self):
@@ -31,7 +31,7 @@ class TestEnvironFreeze(TestCase):
 
         env['X'] = '2'
 
-        self.assertIn('KS_NUKE_ENVIRON_DIFF', env)
+        self.assertIn('SITETOOLS_NUKE_ENVIRON_DIFF', env)
         self.assertEqual(env['X'], '2')
 
         refreezer_ctx = unfreeze('nuke', environ=env)

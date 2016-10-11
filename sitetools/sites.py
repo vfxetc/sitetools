@@ -29,7 +29,7 @@ We reimplemented this because:
 Environment Variables
 ---------------------
 
-.. envvar:: KS_SITES
+.. envvar:: SITETOOLS_SITES
 
     A colon-delimited list of sites to add as pseudo site-packages (see
     :ref:`python_setup`).
@@ -44,7 +44,7 @@ Environment Variables
     to ``sys.path``, and anything after the current environment will be appended.
 
 
-.. envvar:: KS_DEV_SITES
+.. envvar:: SITETOOLS_DEV_SITES
 
     A colon-delimited list of sites to look for when using the
     :ref:`dev command<dev_command>`. Any ``~`` found may refer to any requested
@@ -141,7 +141,7 @@ class Site(object):
 
 
 def get_dev_site_patterns():
-    return get_environ_list('KS_DEV_SITES', ['~/dev/venv/bin/python', '~/dev'])
+    return get_environ_list('SITETOOLS_DEV_SITES', ['~/dev/venv/bin/python', '~/dev'])
 
 
 def find_dev_sites(patterns=None, users=None):
@@ -323,7 +323,7 @@ def add_site_dir(dir_name, before=None, _path=None):
 def _setup():
 
     sites = []
-    for site_path in get_environ_list('KS_SITES'):
+    for site_path in get_environ_list('SITETOOLS_SITES'):
         try:
             site = Site(site_path)
         except ValueError as e:

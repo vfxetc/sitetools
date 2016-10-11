@@ -26,7 +26,7 @@ You can then get those debug logs dumped to your terminal by using the :ref:`dev
 Environment Variables
 ---------------------
 
-.. envvar:: KS_PYTHON_LOG_FILE
+.. envvar:: SITETOOLS_LOG_FILE
 
     A format string for determining where to save ``logging`` logs. Defaults
     (in the WesternX environment) to::
@@ -35,7 +35,7 @@ Environment Variables
 
     Keys available include: ``date``, ``time``, ``login``, ``ip``, and ``pid``.
 
-.. envvar:: KS_VERBOSE
+.. envvar:: SITETOOLS_VERBOSE
 
     Set by ``-v`` flags to the :ref:`dev command <dev_command>'.
 
@@ -44,18 +44,18 @@ Environment Variables
     threshold in Python processes to :const:`DEBUG`, :const:`TRACE` (5), and
     :const:`BLATHER` (1), respectively.
 
-.. envvar:: KS_LOG_LEVELS
+.. envvar:: SITETOOLS_LOG_LEVELS
 
     A space-or-comma-delimited list of logger names and minimum record levels. E.g.::
 
-        $ export KS_LOG_LEVELS=:WARNING,mayatools:DEBUG
+        $ export SITETOOLS_LOG_LEVELS=:WARNING,mayatools:DEBUG
 
     would set the general logging threshold to :const:`logging.WARNING`, but anything
     within ``mayatools`` to :const:`logging.DEBUG`.
 
     In an emergency this can effectively disable the logging system by setting::
 
-        $ export KS_LOG_LEVELS=:100
+        $ export SITETOOLS_LOG_LEVELS=:100
 
     which is too high for any (built-in) log levels.
 
@@ -221,7 +221,7 @@ def _setup():
     logging.addLevelName(TRACE, 'TRACE')
 
     # Determine the level to use.
-    verbosity = os.environ.get('KS_VERBOSE', '0')
+    verbosity = os.environ.get('SITETOOLS_VERBOSE', '0')
     level = {
         '0': logging.INFO,
         '1': logging.DEBUG,
@@ -252,7 +252,7 @@ def _setup():
         logging.getLogger(name).setLevel(level)
     
     # Setup specially requested levels, usually from `dev --log name:LEVEL`
-    requested_levels = os.environ.get('KS_LOG_LEVELS')
+    requested_levels = os.environ.get('SITETOOLS_LOG_LEVELS')
     if requested_levels:
         requested_levels = [x.strip() for x in re.split(r'[\s,]+', requested_levels)]
         requested_levels = [x for x in requested_levels if x]
@@ -279,7 +279,7 @@ def _setup():
             log.log(TRACE, '%s set to %s', name, level)
 
     # Setup logging to a file, if requested.
-    pattern = os.environ.get('KS_PYTHON_LOG_FILE')
+    pattern = os.environ.get('SITETOOLS_LOG_FILE')
     if pattern:
         handler = PatternedFileHandler(pattern, delay=True)
         handler.setLevel(logging.INFO)
@@ -287,7 +287,7 @@ def _setup():
         handler.addFilter(ContextInfoFilter())
         logging.getLogger().addHandler(handler)
         
-    # log to graylog
+    # Log to Graylog
     hostname = socket.gethostname()
     class GraylogHandler(logging.handlers.DatagramHandler):
         def makePickle(self, record):
@@ -314,14 +314,14 @@ def _setup():
 
             return json.dumps(msg)
     
-    spec = os.environ.get('GRAYLOG', '10.2.200.3:12201')
-    if spec:
-        host, port = spec.split(':')
+
+    graylog_addr = os.environ.get('GRAYLOG')
+    if graylog_addr:
+        host, port = graylog_addr.split(':')
         handler = GraylogHandler(host, int(port)) # DNS lookup was rediculous.
         handler.setLevel(logging.INFO)
         handler.setFormatter(logging.Formatter('%(levelname)8s %(name)s: %(message)s'))
         root.addHandler(handler)
-
 
     sentry_dsn = os.environ.get('PYTHONSENTRYDSN')
     if sentry_dsn:
